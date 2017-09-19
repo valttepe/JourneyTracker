@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <!--Items for the bottom navigation bar -->
     <item
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_directions_run_black_24dp"
         android:title="@string/title_home" />
 
     <item
-        android:id="@+id/navigation_dashboard"
+        android:id="@+id/navigation_map"
         android:icon="@drawable/ic_map_black_24dp"
-        android:title="@string/title_dashboard" />
+        android:title="@string/title_map" />
 
     <item
-        android:id="@+id/navigation_notifications"
+        android:id="@+id/navigation_saved_routes"
         android:icon="@drawable/ic_archive_black_24dp"
-        android:title="@string/title_notifications" />
+        android:title="@string/title_saved_routes" />
 
 </menu>
