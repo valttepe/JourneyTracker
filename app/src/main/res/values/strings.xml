@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">JourneyTracker</string>
+    <!-- names for the navigation bar -->
     <string name="title_home">Home</string>
     <string name="title_map">Map</string>
     <string name="title_saved_routes">Results</string>
+
+    <!-- Button names -->
+    <string name="start_button">Start</string>
+    <string name="ready_button">Ready</string>
 </resources>
