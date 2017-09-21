@@ -1,52 +1,63 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.valtteri.journeytracker.R;
-import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 
 
-public class OrienteeringFragment extends Fragment {
+public class AddTargetFragment extends Fragment {
 
-    private Button stopbtn;
+    Button readybtn;
+    public static final String ARG_PARAM1 = "param1";
+    public static final String ARG_PARAM2 = "param2";
+
+    private String mParam1 = "testing";
+    private String mParam2 = "Testingtesting";
+
+    Bundle args;
+
     private OnFragmentInteractionListener mListener;
-
-    public OrienteeringFragment() {
+    public AddTargetFragment() {
         // Required empty public constructor
     }
-
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
-            Log.i("Add target arguments", getArguments().getString("param1"));
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_orienteering, container, false);
-        stopbtn = v.findViewById(R.id.stop_button);
-        stopbtn.setOnClickListener(new View.OnClickListener() {
+        View v = inflater.inflate(R.layout.fragment_add_target, container, false);
+        readybtn = v.findViewById(R.id.ready_button);
+        readybtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changetoMain = new Intent(getActivity(), MainActivity.class);
-                startActivity(changetoMain);
+                // TODO: get target longitude and altitude here and send them forward to the Orienteering fragment
+                if(mListener != null){
+                    args = new Bundle();
+                    args.putString(ARG_PARAM1, mParam1);
+                    args.putString(ARG_PARAM2, mParam2);
+
+                    mListener.changeFragment(args);
+                }
+
+
+
             }
         });
+
         return v;
     }
 
@@ -66,7 +77,6 @@ public class OrienteeringFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
 
 
 }

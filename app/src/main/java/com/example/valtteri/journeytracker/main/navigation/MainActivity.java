@@ -1,4 +1,4 @@
-package com.example.valtteri.journeytracker;
+package com.example.valtteri.journeytracker.main.navigation;
 
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import com.example.valtteri.journeytracker.R;
 
 public class MainActivity extends AppCompatActivity {
 

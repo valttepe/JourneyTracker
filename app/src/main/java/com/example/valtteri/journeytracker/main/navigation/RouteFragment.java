@@ -1,4 +1,4 @@
-package com.example.valtteri.journeytracker;
+package com.example.valtteri.journeytracker.main.navigation;
 
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.route.tracking.RouteTrackActivity;
 
 /**
