@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.valtteri.journeytracker.MainActivity">
+    tools:context="com.example.valtteri.journeytracker.main.navigation.MainActivity">
 
     <FrameLayout
         android:id="@+id/content"

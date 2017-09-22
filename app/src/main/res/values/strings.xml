@@ -8,6 +8,7 @@
     <!-- Button names -->
     <string name="start_button">Start</string>
     <string name="ready_button">Ready</string>
+    <string name="stop_button">Stop</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
