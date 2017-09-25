@@ -1,4 +1,4 @@
-package com.example.valtteri.journeytracker;
+package com.example.valtteri.journeytracker.main.navigation;
 
 import android.*;
 import android.Manifest;
@@ -55,6 +55,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.example.valtteri.journeytracker.R;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
 
