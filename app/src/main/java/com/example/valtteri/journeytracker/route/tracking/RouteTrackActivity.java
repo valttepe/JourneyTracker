@@ -39,6 +39,7 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
         newFrag.setArguments(bundle);
         ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.route_content, newFrag);
+        ft.addToBackStack(null);
         ft.commit();
     }
 }
