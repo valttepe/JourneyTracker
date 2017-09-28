@@ -1,19 +1,9 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
-import android.Manifest;
-
-import android.app.Activity;
-
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-
-
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,18 +11,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.valtteri.journeytracker.R;
-import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.osmdroid.views.MapView;
 
 
 public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
@@ -43,11 +28,14 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
     private String mParam1 = "testing";
     private String mParam2 = "Testingtesting";
-
-    MapView mapView;
-    GoogleMap map;
-    Bundle mBundle;
+    private MapView mapView;
+    private GoogleMap googleMap;
     Bundle args;
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private boolean mPermissionDenied = false;
+
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -63,10 +51,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         View v = inflater.inflate(R.layout.fragment_add_target, container, false);
 
 
-
-
-
-      /*  readybtn = v.findViewById(R.id.ready_button);
+        readybtn = v.findViewById(R.id.ready_button);
         readybtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,26 +63,25 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
                     mListener.changeFragment(args);
                 }
-
-
-
             }
         });
-*/
-
-
 
         return v;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-
+        /*
+        mapView = (MapView) view.findViewById(R.id.map);
+        mapView.onCreate(savedInstanceState);
+        mapView.onResume();*/
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.map);
+                //getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+        //mapView.getMapAsync(this);
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -118,13 +102,20 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng marker = new LatLng(-33.132, 141.204);
+    public void onMapReady(GoogleMap map) {
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker, 13));
+        Log.d("Halloota", "Käydääks tääl??");
+        googleMap = map;
 
-        googleMap.addMarker(new MarkerOptions().title("Hello hello!").position(marker));
+        LatLng koulu = new LatLng(60.2207369, 24.8032866);
+
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(60.2207369, 24.8032866))
+                .title("Marker"));
+
+
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(koulu, 15));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
-
 
 }

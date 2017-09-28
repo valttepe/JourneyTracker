@@ -1,8 +1,6 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
 
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
