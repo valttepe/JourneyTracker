@@ -1,17 +1,13 @@
 package com.example.valtteri.journeytracker.main.navigation;
 
-import android.*;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
-
-import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -21,42 +17,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
-import org.osmdroid.api.IMapController;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Marker;
+import com.example.valtteri.journeytracker.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.example.valtteri.journeytracker.R;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
 
@@ -68,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
     int MY_PERMISSION_ACCESS_COURSE_LOCATION=00;
     int MY_PERMISSION_WRITE_EXTERNAL_STORAGE=00;
-    MapFragment mapFragment;
+    StepListFragment stepListFragment;
 
 
 
@@ -298,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             ft.commit();
         }
         else if(itemid == R.id.navigation_map) {
-            fragment = new MapFragment();
+            fragment = new StepListFragment();
             ft.replace(R.id.content, fragment);
             ft.addToBackStack(null);
             ft.commit();

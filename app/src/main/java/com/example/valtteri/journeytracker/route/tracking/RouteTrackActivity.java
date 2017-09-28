@@ -1,9 +1,10 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
+
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 
 import com.example.valtteri.journeytracker.R;
 
@@ -29,7 +30,7 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.route_content, addTargetFragment).commit();
+                    .add(R.id.route_content, addTargetFragment).addToBackStack(null).commit();
         }
     }
 
