@@ -35,8 +35,6 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean mPermissionDenied = false;
 
-
-
     private OnFragmentInteractionListener mListener;
 
     public AddTargetFragment() {
@@ -72,15 +70,10 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        /*
-        mapView = (MapView) view.findViewById(R.id.map);
-        mapView.onCreate(savedInstanceState);
-        mapView.onResume();*/
+
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map);
-                //getActivity().getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        //mapView.getMapAsync(this);
     }
 
     @Override
@@ -104,14 +97,16 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap map) {
 
+
         Log.d("Halloota", "Käydääks tääl??");
         googleMap = map;
 
-        LatLng koulu = new LatLng(60.2207369, 24.8032866);
+        LatLng koulu = new LatLng(1, 1);
 
         googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(60.2207369, 24.8032866))
-                .title("Marker"));
+                .position(new LatLng(1, 1))
+                .title("Marker")
+                .draggable(true));
 
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(koulu, 15));
