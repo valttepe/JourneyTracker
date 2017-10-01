@@ -20,7 +20,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -141,6 +144,45 @@ public class OrienteeringFragment extends Fragment implements
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_orienteering, container, false);
+
+        //get the spinner from the xml.
+        Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
+//create a list of items for the spinner.
+        String[] items = new String[]{"Satellite", "Roadmap", "Terrain", "Hybrid"};
+/*
+create an adapter to describe how the items are displayed, adapters are used in several places in android.
+There are multiple variations of this, but this is the basic variant.
+*/
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+//set the spinners adapter to the previously created one.
+        dropdown.setAdapter(adapter);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selectedItem = adapterView.getItemAtPosition(i).toString();
+                if(selectedItem.equals("Roadmap")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
+                }
+                else if(selectedItem.equals("Satellite")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+
+                }
+                else if(selectedItem.equals("Terrain")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
+
+                }
+                else if(selectedItem.equals("Hybrid")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         stepCounter = new StepCheck(getActivity());
         stepCounter.setListener(this);
