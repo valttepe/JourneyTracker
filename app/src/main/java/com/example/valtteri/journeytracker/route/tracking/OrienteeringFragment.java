@@ -95,7 +95,6 @@ public class OrienteeringFragment extends Fragment implements
     double avgLon;
 
     int everyFifthValue = 0;
-    ArrayList<LatLng> locations;
 
     Timer timer;
     TimerTask timerTask;
@@ -114,6 +113,7 @@ public class OrienteeringFragment extends Fragment implements
     Marker koulu;
     Circle myLoc;
     ArrayList<LatLng> markerPositions = new ArrayList<>();
+    ArrayList<LatLng> locations;
 
     private GoogleMap googleMap;
 
@@ -284,7 +284,9 @@ There are multiple variations of this, but this is the basic variant.
 
                     locations.add(myLocation);
 
-
+                    if(myLocation != null) {
+                        myLoc.setCenter(myLocation);
+                    }
 
 
                     if(prevLat != 0 && prevLon != 0 ) {
@@ -316,7 +318,7 @@ There are multiple variations of this, but this is the basic variant.
                             // Koko matka täs muuttujas
                             distanceTotal = distanceTotal + distanceThis;
                             metersTotal.setText(Float.toString(distanceTotal) + "m");
-
+                            Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
                         }
 
 
