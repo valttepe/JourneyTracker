@@ -3,6 +3,8 @@ package com.example.valtteri.journeytracker.route.tracking;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -27,6 +29,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.CommonStatusCodes;
@@ -65,7 +68,10 @@ import java.util.TimerTask;
 
 
 public class OrienteeringFragment extends Fragment implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, StepCheck.StepCounterListener {
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        OnMapReadyCallback,
+        StepCheck.StepCounterListener {
 
     private Button stopbtn;
     private OnFragmentInteractionListener mListener;
@@ -185,12 +191,21 @@ public class OrienteeringFragment extends Fragment implements
             public void onClick(View view) {
                 //TODO finalTime contains the final time of stop watch
 
+
+
                 finalTime = stopWatch.getText().toString();
+                ContentValues values = new ContentValues();
+                values.put("timer", finalTime);
+                values.put("distance", distanceTotal);
+
+                // TODO: Coordinates
+                getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
+
                 //Stop timer
                 handler.removeCallbacks(runnable);
                 //Change fragment to Main
-                Intent changetoMain = new Intent(getActivity(), MainActivity.class);
-                startActivity(changetoMain);
+                //Intent changetoMain = new Intent(getActivity(), MainActivity.class);
+                //startActivity(changetoMain);
             }
         });
         //Start the stopwatch

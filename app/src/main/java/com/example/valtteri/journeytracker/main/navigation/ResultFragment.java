@@ -110,8 +110,8 @@ public class ResultFragment extends Fragment implements LoaderManager.LoaderCall
         public void bindView(View view, Context context, Cursor cursor) {
             date = (TextView)view.findViewById(R.id.date);
             distance = (TextView)view.findViewById(R.id.distance);
-            d = cursor.getString(cursor.getColumnIndex("Date"));
-            dis = cursor.getString(cursor.getColumnIndex("Distance"));
+            d = cursor.getString(cursor.getColumnIndex("date"));
+            dis = cursor.getString(cursor.getColumnIndex("distance"));
             if(d != null || dis != null) {
                 date.setText(d);
                 distance.setText(dis);
