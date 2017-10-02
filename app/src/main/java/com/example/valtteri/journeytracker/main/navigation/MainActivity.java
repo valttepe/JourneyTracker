@@ -23,13 +23,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.valtteri.journeytracker.R;
+import com.example.valtteri.journeytracker.route.tracking.OnFragmentInteractionListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, OnFragmentInteractionListener{
 
     private TextView mTextMessage;
     private Fragment fragment;
@@ -283,5 +284,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
 
-
+    @Override
+    public void changeFragment(Bundle bundle) {
+        
+    }
 }

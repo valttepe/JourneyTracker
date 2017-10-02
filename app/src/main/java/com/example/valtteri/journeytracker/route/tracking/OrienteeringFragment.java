@@ -269,7 +269,7 @@ There are multiple variations of this, but this is the basic variant.
                      setLoc(lat, lon);
 
                     LatLng myLocation = new LatLng(getLat(), getLon());
-
+                    // Tähän arraylist tallennus
 
 
                     if(myLocation != null) {
@@ -303,6 +303,7 @@ There are multiple variations of this, but this is the basic variant.
 
                         if (stepsTaken) {
                             distanceThis = getDistance(locNow, locPrev);
+                            // Koko matka täs muuttujas
                             distanceTotal = distanceTotal + distanceThis;
                             metersTotal.setText(Float.toString(distanceTotal) + "m");
                             Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
