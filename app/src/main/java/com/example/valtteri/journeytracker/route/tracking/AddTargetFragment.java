@@ -17,7 +17,13 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
@@ -31,6 +37,8 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     private MapView mapView;
     private GoogleMap googleMap;
     Bundle args;
+
+    ArrayList<LatLng> markerPositions;
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private boolean mPermissionDenied = false;
@@ -49,6 +57,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         View v = inflater.inflate(R.layout.fragment_add_target, container, false);
 
 
+        markerPositions = new ArrayList<>();
         readybtn = v.findViewById(R.id.ready_button);
         readybtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -59,12 +68,39 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
                     args.putString(ARG_PARAM1, mParam1);
                     args.putString(ARG_PARAM2, mParam2);
 
+                    for(LatLng locs : markerPositions) {
+                        Log.d("Locations ", locs.toString());
+                    }
                     mListener.changeFragment(args);
                 }
             }
         });
 
+
+
+
         return v;
+    }
+
+    private void addTarget(LatLng position) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(position)
+                .title("Remove marker")
+                .draggable(true));
+
+        markerPositions.add(position);
+    }
+
+    private void removeTarget(Marker m) {
+        m.remove();
+
+       for(int i = 0; i < markerPositions.size(); i++) {
+           LatLng obj = markerPositions.get(i);
+           if (obj.equals(m.getPosition())) {
+               markerPositions.remove(i);
+               break;
+           }
+       }
     }
 
     @Override
@@ -74,6 +110,8 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
     }
 
     @Override
@@ -98,18 +136,27 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap map) {
 
 
-        Log.d("Halloota", "Käydääks tääl??");
         googleMap = map;
 
-        LatLng koulu = new LatLng(1, 1);
+        LatLng start = new LatLng(60.32453, 25.0516);
 
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1, 1))
-                .title("Marker")
-                .draggable(true));
+        googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng position) {
+                addTarget(position);
+                Log.d("Added a marker: ", position.toString());
+            }
+        });
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker m){
+                removeTarget(m);
+            }
+        });
 
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(koulu, 15));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
 
