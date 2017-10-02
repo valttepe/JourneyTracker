@@ -280,7 +280,7 @@ There are multiple variations of this, but this is the basic variant.
                     LatLng myLocation = new LatLng(getLat(), getLon());
                     // Tähän arraylist tallennus
 
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+
 
                     locations.add(myLocation);
 
@@ -545,9 +545,7 @@ There are multiple variations of this, but this is the basic variant.
                 .visible(true)
                 .radius(20));
 
-        koulu = googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(60.2208061, 24.8030184))
-                .title("Marker"));
+        
 
 
         for(LatLng locationPoint : markerPositions) {
