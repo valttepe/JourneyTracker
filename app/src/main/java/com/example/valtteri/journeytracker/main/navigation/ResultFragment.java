@@ -35,6 +35,14 @@ public class ResultFragment extends Fragment implements LoaderManager.LoaderCall
     public ResultFragment() {
         // Required empty public constructor
     }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        cursorAdapter = new SqlCursorAdapter(getActivity(), null, 1);
+
+        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

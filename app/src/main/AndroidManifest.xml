@@ -42,6 +42,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".route.tracking.RouteTrackActivity"></activity>
+        <provider
+            android:authorities="com.example.valtteri.journeytracker.content.provider.contentprovider"
+            android:name=".content.provider.SqlContentProvider"></provider>
     </application>
 
 </manifest>

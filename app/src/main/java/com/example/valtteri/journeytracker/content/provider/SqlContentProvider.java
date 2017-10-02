@@ -19,23 +19,27 @@ import android.util.Log;
 public class SqlContentProvider extends ContentProvider {
     private SQLiteDatabase db;
     public static final String cont = "content://";
-    public static final String PROVIDER_NAME = "com.example.valtteri.sqlitetask.contentprovider";
+    public static final String PROVIDER_NAME = "com.example.valtteri.journeytracker.content.provider.contentprovider";
     public static final Uri base_URI = Uri.parse( cont + PROVIDER_NAME);
 
 
     public static final String getAll = "/getAll";
     public static final String getOne = "/getOne";
+    public static final String insertRoute = "/insertRoute";
 
     public static final Uri get_ALL = Uri.parse(cont + PROVIDER_NAME + getAll);
+    public static final Uri inserROUTE = Uri.parse(cont + PROVIDER_NAME + insertRoute);
 
     public static final int getList = 1;
     public static final int getOneResult = 2;
+    public static final int insertingRoute = 3;
 
     static final UriMatcher uriMatcher;
     static{
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(PROVIDER_NAME, getAll, getList);
         uriMatcher.addURI(PROVIDER_NAME, getOne, getOneResult);
+        uriMatcher.addURI(PROVIDER_NAME, insertRoute, insertingRoute);
 
     }
 
@@ -78,6 +82,17 @@ public class SqlContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
+        if(uriMatcher.match(uri) == 3){
+            // TODO: insert to database
+            if(contentValues != null){
+                contentValues.get("timer");
+                contentValues.get("distance");
+            }
+
+        }
+        else{
+
+        }
         return null;
     }
 
