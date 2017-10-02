@@ -58,6 +58,7 @@ import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -94,6 +95,7 @@ public class OrienteeringFragment extends Fragment implements
     double avgLon;
 
     int everyFifthValue = 0;
+    ArrayList<LatLng> locations;
 
     Timer timer;
     TimerTask timerTask;
@@ -111,6 +113,7 @@ public class OrienteeringFragment extends Fragment implements
 
     Marker koulu;
     Circle myLoc;
+    ArrayList<LatLng> markerPositions = new ArrayList<>();
 
     private GoogleMap googleMap;
 
@@ -125,6 +128,11 @@ public class OrienteeringFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         if(getArguments() != null) {
             Log.i("Add target arguments", getArguments().getString("param1"));
+            markerPositions = getArguments().getParcelableArrayList(AddTargetFragment.TARGETS);
+
+            for(LatLng locs : markerPositions) {
+                Log.d("RECEIVED LOCATIONS ", locs.toString());
+            }
         }
 
 
@@ -186,6 +194,7 @@ There are multiple variations of this, but this is the basic variant.
 
         stepCounter = new StepCheck(getActivity());
         stepCounter.setListener(this);
+        locations = new ArrayList<>();
 
         stopbtn = v.findViewById(R.id.stop_button);
         stopWatch = (TextView)v.findViewById(R.id.stopWatch);
@@ -270,11 +279,11 @@ There are multiple variations of this, but this is the basic variant.
 
                     LatLng myLocation = new LatLng(getLat(), getLon());
 
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15));
+
+                    locations.add(myLocation);
 
 
-                    if(myLocation != null) {
-                        myLoc.setCenter(myLocation);
-                    }
 
 
                     if(prevLat != 0 && prevLon != 0 ) {
@@ -305,7 +314,7 @@ There are multiple variations of this, but this is the basic variant.
                             distanceThis = getDistance(locNow, locPrev);
                             distanceTotal = distanceTotal + distanceThis;
                             metersTotal.setText(Float.toString(distanceTotal) + "m");
-                            Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
+
                         }
 
 
@@ -537,7 +546,18 @@ There are multiple variations of this, but this is the basic variant.
                 .title("Marker"));
 
 
+        for(LatLng locationPoint : markerPositions) {
+            addTarget(locationPoint);
+        }
 
+
+
+    }
+    private void addTarget(LatLng position) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(position)
+                .title("Remove marker")
+                .draggable(true));
     }
 
     @Override

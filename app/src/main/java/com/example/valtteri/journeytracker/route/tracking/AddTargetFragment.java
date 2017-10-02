@@ -31,6 +31,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     Button readybtn;
     public static final String ARG_PARAM1 = "param1";
     public static final String ARG_PARAM2 = "param2";
+    public static final String TARGETS = "targets";
 
     private String mParam1 = "testing";
     private String mParam2 = "Testingtesting";
@@ -67,6 +68,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
                     args = new Bundle();
                     args.putString(ARG_PARAM1, mParam1);
                     args.putString(ARG_PARAM2, mParam2);
+                    args.putParcelableArrayList(TARGETS, markerPositions);
 
                     for(LatLng locs : markerPositions) {
                         Log.d("Locations ", locs.toString());
