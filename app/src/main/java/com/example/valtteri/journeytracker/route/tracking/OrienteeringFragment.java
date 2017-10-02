@@ -263,6 +263,8 @@ public class OrienteeringFragment extends Fragment implements
                     //Todo myLocation contains real time locations
                     LatLng myLocation = new LatLng(getLat(), getLon());
 
+
+
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
