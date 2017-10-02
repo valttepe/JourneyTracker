@@ -65,7 +65,7 @@ import java.util.TimerTask;
 
 
 public class OrienteeringFragment extends Fragment implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, StepCheck.StepCounterListener, Runnable{
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, StepCheck.StepCounterListener {
 
     private Button stopbtn;
     private OnFragmentInteractionListener mListener;
@@ -74,54 +74,35 @@ public class OrienteeringFragment extends Fragment implements
     FusedLocationProviderClient mFusedLocationClient;
     LocationRequest mLocationRequest;
     LocationCallback mLocationCallback;
-    StopWatchTimer stopWatchTimer;
     private static final int REQUEST_CHECK_SETTINGS = 61124;
+    private GoogleMap googleMap;
     boolean mRequestingLocationUpdates;
     double lat;
     double lon;
-    double lati;
-    double longi;
-    double latFinal;
-    double lonFinal;
+    double latCombined = 0;
+    double lonCombined = 0;
+    double avgLat;
+    double avgLon;
     double prevLat = 0;
     double prevLon = 0;
     float distanceTotal = 0;
     float distanceThis;
-
-    double latCombined = 0;
-    double lonCombined = 0;
-
-    double avgLat;
-    double avgLon;
-
-    int everyFifthValue = 0;
-
-    Timer timer;
-    TimerTask timerTask;
-    TextView stopWatch ;
-    TextView metersTotal;
-
     private StepCheck stepCounter;
     boolean stepsTaken = false;
-
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
-
-    final Handler handler = new Handler();
-
     int Seconds, Minutes, Hours ;
-
-    Marker koulu;
+    int everyFifthValue = 0;
+    TextView stopWatch ;
+    TextView metersTotal;
+    Handler handler;
+    String finalTime;
     Circle myLoc;
     ArrayList<LatLng> markerPositions = new ArrayList<>();
     ArrayList<LatLng> locations;
 
-    private GoogleMap googleMap;
-
     public OrienteeringFragment() {
         // Required empty public constructor
     }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -134,9 +115,6 @@ public class OrienteeringFragment extends Fragment implements
                 Log.d("RECEIVED LOCATIONS ", locs.toString());
             }
         }
-
-
-
     }
 
     @Override
@@ -153,19 +131,23 @@ public class OrienteeringFragment extends Fragment implements
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_orienteering, container, false);
 
+
+        handler = new Handler() ;
+
         //get the spinner from the xml.
         Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
-//create a list of items for the spinner.
+        //create a list of items for the spinner.
         String[] items = new String[]{"Satellite", "Roadmap", "Terrain", "Hybrid"};
-/*
-create an adapter to describe how the items are displayed, adapters are used in several places in android.
-There are multiple variations of this, but this is the basic variant.
-*/
+        /*
+        create an adapter to describe how the items are displayed, adapters are used in several places in android.
+        There are multiple variations of this, but this is the basic variant.
+        */
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
-//set the spinners adapter to the previously created one.
+        //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+            //Set map types to change by clicking items.
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
@@ -195,19 +177,25 @@ There are multiple variations of this, but this is the basic variant.
         stepCounter = new StepCheck(getActivity());
         stepCounter.setListener(this);
         locations = new ArrayList<>();
-
         stopbtn = v.findViewById(R.id.stop_button);
         stopWatch = (TextView)v.findViewById(R.id.stopWatch);
         metersTotal = (TextView)v.findViewById(R.id.metersTotal);
         stopbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //TODO finalTime contains the final time of stop watch
+
+                finalTime = stopWatch.getText().toString();
+                //Stop timer
+                handler.removeCallbacks(runnable);
+                //Change fragment to Main
                 Intent changetoMain = new Intent(getActivity(), MainActivity.class);
                 startActivity(changetoMain);
             }
         });
-
-        stopWatchTimer = new StopWatchTimer();
+        //Start the stopwatch
+        StartTime = SystemClock.uptimeMillis();
+        handler.postDelayed(runnable, 0);
 
 
         gac = new GoogleApiClient.Builder(getActivity())
@@ -228,7 +216,6 @@ There are multiple variations of this, but this is the basic variant.
         task.addOnSuccessListener(getActivity(), new OnSuccessListener<LocationSettingsResponse>() {
             @Override
             public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                Log.d("success", "yes?");
             }
         });
 
@@ -238,8 +225,6 @@ There are multiple variations of this, but this is the basic variant.
 
                 Activity activity = getActivity();
                 if (activity != null && isAdded()) {
-
-                    Log.d("success", "nope? " + e);
                     int statusCode = ((ApiException) e).getStatusCode();
                     switch (statusCode) {
                         case CommonStatusCodes.RESOLUTION_REQUIRED:
@@ -265,9 +250,7 @@ There are multiple variations of this, but this is the basic variant.
             }
         });
 
-
-
-
+        //This method is run everytime the location is updated.
         mLocationCallback = new LocationCallback() {
             public void onLocationResult(LocationResult locationResult) {
                 Log.d("Location result", locationResult.toString());
@@ -277,11 +260,12 @@ There are multiple variations of this, but this is the basic variant.
                      lon = location.getLongitude();
                      setLoc(lat, lon);
 
+                    //Todo myLocation contains real time locations
                     LatLng myLocation = new LatLng(getLat(), getLon());
-                    // Tähän arraylist tallennus
 
 
 
+                    //Add current location to arraylist.
                     locations.add(myLocation);
 
                     if(myLocation != null) {
@@ -289,20 +273,16 @@ There are multiple variations of this, but this is the basic variant.
                     }
 
 
+                    //Combine latitudes and longitudes.
                     if(prevLat != 0 && prevLon != 0 ) {
-
                         latCombined = latCombined + lat;
                         lonCombined = lonCombined + lon;
 
                         Log.d("LATITUDE YHTEENSÄ", Double.toString(latCombined));
                         Log.d("LONGITUDE YHTEENSÄ", Double.toString(lonCombined));
-
-
-
-
                     }
 
-
+                    //Get the average location in every fifth callbacks to get more accurate meter calculation.
                     if (everyFifthValue % 5 == 0) {
 
                         avgLat = latCombined / 5;
@@ -315,27 +295,16 @@ There are multiple variations of this, but this is the basic variant.
 
                         if (stepsTaken) {
                             distanceThis = getDistance(locNow, locPrev);
-                            // Koko matka täs muuttujas
+                            //Todo distanceTotal contains the final meters
                             distanceTotal = distanceTotal + distanceThis;
                             metersTotal.setText(Float.toString(distanceTotal) + "m");
                             Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
                         }
 
-
-
-
-
-
                         latCombined = 0;
                         lonCombined = 0;
-
                         everyFifthValue = 0;
-
-
                     }
-
-
-
 
                     if(avgLat > 0 && avgLon > 0) {
                         Log.d("MENNÄÄKS TÄNNE?", "JOOOO");
@@ -348,16 +317,7 @@ There are multiple variations of this, but this is the basic variant.
                     }
                     everyFifthValue = everyFifthValue + 1;
                 }
-
-
-
-
-
                    // googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-
-
-
-
             }
         };
         return v;
@@ -380,39 +340,30 @@ There are multiple variations of this, but this is the basic variant.
     public double getLat() {
         return lat;
     }
+
     public double getLon() {
         return lon;
     }
-
 
     public void onStart() {
         gac.connect();
         super.onStart();
         createLocationRequest();
-
-
     }
 
     public void onResume() {
         super.onResume();
-        Log.d("resume", "test " + mRequestingLocationUpdates);
-        //if(mRequestingLocationUpdates) {
         startLocationUpdates();
         if(!stepCounter.register()) {
             Toast.makeText(getActivity(), "Step counter not supported!", Toast.LENGTH_SHORT).show();
         }
-        //}
-        //startTimer();
-
     }
 
     public void onStop() {
         super.onStop();
         gac.disconnect();
         stepCounter.unregister();
-
     }
-
 
     public float getDistance(LatLng p1, LatLng p2) {
         double lat1 = (p1.latitude);
@@ -422,36 +373,6 @@ There are multiple variations of this, but this is the basic variant.
         float [] dist = new float[1];
         Location.distanceBetween(lat1, lng1, lat2, lng2, dist);
         return dist[0];
-    }
-
-/*    public void startTimer() {
-        timer = new Timer();
-        initializeTimerTask();
-        timer.schedule(timerTask, 5000, 10000);
-    }*/
-
-    public void stopTimerTask() {
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
-    }
-
-    public void initializeTimerTask() {
-
-
-
-
-                    Calendar calendar = Calendar.getInstance();
-
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd:MMMM:yyyy HH:mm:ss a");
-
-                    final String strDate = simpleDateFormat.format(calendar.getTime());
-                    Log.d("TAIMERI", strDate);
-                    stopWatch.setText(strDate);
-
-
-
     }
 
     protected void startLocationUpdates() {
@@ -474,9 +395,7 @@ There are multiple variations of this, but this is the basic variant.
             Log.d("loc update", "normally yes?");
         } catch (Exception e) {
             Log.d("loc update", "nope?" + e);
-
         }
-
     }
 
     @Override
@@ -495,7 +414,6 @@ There are multiple variations of this, but this is the basic variant.
         super.onDetach();
         mListener = null;
     }
-
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -523,12 +441,10 @@ There are multiple variations of this, but this is the basic variant.
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     @Override
@@ -545,15 +461,9 @@ There are multiple variations of this, but this is the basic variant.
                 .visible(true)
                 .radius(20));
 
-        
-
-
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
         }
-
-
-
     }
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
@@ -562,35 +472,33 @@ There are multiple variations of this, but this is the basic variant.
                 .draggable(true));
     }
 
-    @Override
-    public void run() {
-        MillisecondTime = SystemClock.uptimeMillis() - StartTime;
-
-        UpdateTime = TimeBuff + MillisecondTime;
-
-        Seconds = (int) (UpdateTime / 1000);
-
-        Hours = Minutes / 60;
-        Minutes = Minutes % 60;
-
-        Minutes = Seconds / 60;
-
-        Seconds = Seconds % 60;
-
-
-
-        stopWatch.setText("" + Hours + ":"
-                + String.format("%02d", Minutes) + ":"
-                + String.format("%02d", Seconds));
-
-        handler.postDelayed(this, 0);
-    }
-
+    //If a step is taken, change value to true and start meter calculation.
     @Override
     public void stepCountChanged(String sensoriChanged) {
         if(sensoriChanged != null) {
             stepsTaken = true;
         }
-
     }
+
+    //Stopwatch functionality.
+    public Runnable runnable = new Runnable() {
+
+        public void run() {
+
+            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+            UpdateTime = TimeBuff + MillisecondTime;
+            Seconds = (int) (UpdateTime / 1000);
+            Hours = Minutes / 60;
+            Minutes = Minutes % 60;
+            Minutes = Seconds / 60;
+            Seconds = Seconds % 60;
+
+            stopWatch.setText("" + Hours + ":"
+                    + String.format("%02d", Minutes) + ":"
+                    + String.format("%02d", Seconds));
+
+            handler.postDelayed(this, 0);
+        }
+
+    };
 }
