@@ -287,6 +287,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     public void changeFragment(Bundle bundle) {
-
+        fm = getSupportFragmentManager();
+        ft = fm.beginTransaction();
+        
+        fragment = new ResultDetails();
+        fragment.setArguments(bundle);
+        ft.replace(R.id.content, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 }

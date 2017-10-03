@@ -35,6 +35,12 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getArguments() != null) {
+            Log.i("Result arguments", getArguments().getString("distance"));
+            Log.i("Result arguments", getArguments().getString("date"));
+            Log.i("Result arguments", getArguments().getString("timer"));
+            Log.i("Result arguments", getArguments().getString("id"));
+
+
 
         }
     }

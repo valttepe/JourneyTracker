@@ -205,6 +205,7 @@ public class OrienteeringFragment extends Fragment implements
 
                 //Stop timer
                 handler.removeCallbacks(runnable);
+
                 //Change fragment to Main
                 Intent changetoMain = new Intent(getActivity(), MainActivity.class);
                 startActivity(changetoMain);
@@ -379,6 +380,7 @@ public class OrienteeringFragment extends Fragment implements
     public void onStop() {
         super.onStop();
         gac.disconnect();
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         stepCounter.unregister();
     }
 
