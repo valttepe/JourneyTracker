@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
     int MY_PERMISSION_ACCESS_COURSE_LOCATION=00;
     int MY_PERMISSION_WRITE_EXTERNAL_STORAGE=00;
-    StepListFragment stepListFragment;
+    MetaWearFragment metaWearFragment;
 
 
 
@@ -270,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             ft.commit();
         }
         else if(itemid == R.id.navigation_map) {
-            fragment = new StepListFragment();
+            fragment = new MetaWearFragment();
             ft.replace(R.id.content, fragment);
             ft.addToBackStack(null);
             ft.commit();
