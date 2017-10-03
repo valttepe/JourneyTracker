@@ -8,7 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.route.tracking.AddTargetFragment;
@@ -18,6 +22,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.w3c.dom.Text;
+
 /**
  * Created by Otto on 2.10.2017.
  */
@@ -25,7 +31,13 @@ import com.google.android.gms.maps.model.LatLng;
 public class ResultDetails extends Fragment implements OnMapReadyCallback {
 
     private OnFragmentInteractionListener mListener;
-    Button backToMenu;
+    GoogleMap googleMap;
+    TextView dateTv;
+    TextView distanceTv;
+    TextView timerTv;
+    String distance;
+    String date;
+    String timer;
 
 
     public ResultDetails() {
@@ -39,7 +51,9 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
             Log.i("Result arguments", getArguments().getString("date"));
             Log.i("Result arguments", getArguments().getString("timer"));
             Log.i("Result arguments", getArguments().getString("id"));
-
+            distance = getArguments().getString("distance");
+            date = getArguments().getString("date");
+            timer = getArguments().getString("timer");
 
 
         }
@@ -51,15 +65,60 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_result_details, container, false);
 
-        backToMenu = v.findViewById(R.id.backToMenu);
-        backToMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: get target longitude and altitude here and send them forward to the Orienteering fragment
-                if(mListener != null){
+        dateTv = v.findViewById(R.id.date);
+        distanceTv = v.findViewById(R.id.kiloMeters);
+        timerTv = v.findViewById(R.id.stopWatch);
 
-                    mListener.changeFragment(null);
+        dateTv.setText(date);
+
+        if (Integer.parseInt(distance) >= 1000) {
+            double dist = Integer.parseInt(distance)/1000;
+            distanceTv.setText(String.valueOf(dist) + " km");
+        }
+        else{
+            int dist = Integer.parseInt(distance);
+            distanceTv.setText(dist + " m");
+        }
+        timerTv.setText(timer);
+
+
+        //get the spinner from the xml.
+        Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
+        //create a list of items for the spinner.
+        String[] items = new String[]{"Satellite", "Roadmap", "Terrain", "Hybrid"};
+        /*
+        create an adapter to describe how the items are displayed, adapters are used in several places in android.
+        There are multiple variations of this, but this is the basic variant.
+        */
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+        //set the spinners adapter to the previously created one.
+        dropdown.setAdapter(adapter);
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            //Set map types to change by clicking items.
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selectedItem = adapterView.getItemAtPosition(i).toString();
+                if(selectedItem.equals("Roadmap")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
                 }
+                else if(selectedItem.equals("Satellite")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+
+                }
+                else if(selectedItem.equals("Terrain")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
+
+                }
+                else if(selectedItem.equals("Hybrid")) {
+                    googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
             }
         });
 
@@ -94,6 +153,8 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+
 
     }
 }
