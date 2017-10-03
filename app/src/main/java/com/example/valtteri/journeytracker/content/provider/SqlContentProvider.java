@@ -12,6 +12,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
 /**
  * Created by Valtteri on 2.10.2017.
  */
@@ -43,10 +49,12 @@ public class SqlContentProvider extends ContentProvider {
 
     }
 
+    myDbHelper dbHelper;
+
     @Override
     public boolean onCreate() {
         Context context = getContext();
-        myDbHelper dbHelper = new myDbHelper(getContext());
+        dbHelper = new myDbHelper(getContext());
         /**
          * Create a write able database which will trigger its
          * creation if it doesn't already exist.
@@ -63,8 +71,11 @@ public class SqlContentProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)){
             case getList:
-                String juu = "joo";
-                break;
+                db = dbHelper.getWritableDatabase();
+                //Cursor c = db.rawQuery("SELECT * FROM Coordinates", null);
+                Cursor c = db.rawQuery("SELECT * FROM Route", null);
+                //Cursor c = db.query(myDbHelper.Table_route, projection, selection, null, null, null, null);
+                return c;
             case getOneResult:
                 break;
             default:
@@ -85,8 +96,18 @@ public class SqlContentProvider extends ContentProvider {
         if(uriMatcher.match(uri) == 3){
             // TODO: insert to database
             if(contentValues != null){
-                contentValues.get("timer");
-                contentValues.get("distance");
+                Log.d("TÄMÄ näin",contentValues.get("timer").toString() );
+                //contentValues.
+                //contentValues.get("distance");
+                Date today = new Date();
+                SimpleDateFormat sd = new SimpleDateFormat("dd.MM.YYYY");
+                String todate = sd.format(today);
+                contentValues.put("date", todate);
+
+                dbHelper.getWritableDatabase();
+
+                db.insert(myDbHelper.Table_route, null, contentValues);
+                db.close();
             }
 
         }
@@ -111,7 +132,7 @@ public class SqlContentProvider extends ContentProvider {
 
         // Database creation values
         private static final String DATABASE_NAME = "DataBase";    // Database Name
-        private static final int DATABASE_Version = 3;    // Database Version
+        private static final int DATABASE_Version = 1;    // Database Version
 
         //  Basic primary key to every table
         static final String UID="_id";     // Column I (Primary Key)
@@ -126,19 +147,19 @@ public class SqlContentProvider extends ContentProvider {
         private Context context;
 
         // Route table creation values
-        private static final String Table_route = "Route";
+        public static final String Table_route = "Route";
         public static final String DISTANCE = "distance";
         public static final String TIMER = "timer";
         private static final String Create_Route_Table = "CREATE TABLE " + Table_route + " ("
-                + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DATE + " TEXT ," + DISTANCE + " REAL "
+                + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DATE + " TEXT ," + DISTANCE + " REAL ,"
                 + TIMER + " TEXT);";
 
-        private static final String Table_coordinates = "Coordinates";
-        private static final String Longitude = "Longitude";
-        private static final String Latitude = "Latitude";
-        private static final String RouteId = "RouteId";
-        private static final String Create_Coordinates_Table = "CREATE TABLE " + Table_route + " ("
-                + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Longitude + " REAL ," + Latitude + " REAL "
+        public static final String Table_coordinates = "Coordinates";
+        public static final String Longitude = "Longitude";
+        public static final String Latitude = "Latitude";
+        public static final String RouteId = "RouteId";
+        private static final String Create_Coordinates_Table = "CREATE TABLE " + Table_coordinates + " ("
+                + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Longitude + " REAL ," + Latitude + " REAL ,"
                 + RouteId + " INTEGER);";
 
 
