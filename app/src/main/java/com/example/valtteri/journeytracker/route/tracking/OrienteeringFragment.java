@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -202,7 +203,6 @@ public class OrienteeringFragment extends Fragment implements
                 //locations.get(0);
                 // TODO: Coordinates
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
-
                 //Stop timer
                 handler.removeCallbacks(runnable);
 
