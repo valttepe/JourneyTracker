@@ -197,15 +197,16 @@ public class OrienteeringFragment extends Fragment implements
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
-
+                //markerPositions.get(0);
+                //locations.get(0);
                 // TODO: Coordinates
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
 
                 //Stop timer
                 handler.removeCallbacks(runnable);
                 //Change fragment to Main
-                //Intent changetoMain = new Intent(getActivity(), MainActivity.class);
-                //startActivity(changetoMain);
+                Intent changetoMain = new Intent(getActivity(), MainActivity.class);
+                startActivity(changetoMain);
             }
         });
         //Start the stopwatch
