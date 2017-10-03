@@ -35,6 +35,7 @@ public class SqlContentProvider extends ContentProvider {
 
     public static final Uri get_ALL = Uri.parse(cont + PROVIDER_NAME + getAll);
     public static final Uri inserROUTE = Uri.parse(cont + PROVIDER_NAME + insertRoute);
+    public static final Uri get_Last = Uri.parse(cont + PROVIDER_NAME + getOne);
 
     public static final int getList = 1;
     public static final int getOneResult = 2;
@@ -73,7 +74,7 @@ public class SqlContentProvider extends ContentProvider {
             case getList:
                 db = dbHelper.getWritableDatabase();
                 //Cursor c = db.rawQuery("SELECT * FROM Coordinates", null);
-                Cursor c = db.rawQuery("SELECT * FROM Route", null);
+                Cursor c = db.rawQuery("SELECT * FROM Route ORDER BY _id DESC", null);
                 //Cursor c = db.query(myDbHelper.Table_route, projection, selection, null, null, null, null);
                 return c;
             case getOneResult:
@@ -107,6 +108,11 @@ public class SqlContentProvider extends ContentProvider {
                 dbHelper.getWritableDatabase();
 
                 db.insert(myDbHelper.Table_route, null, contentValues);
+
+                Cursor cu = db.rawQuery("SELECT * FROM Route ORDER BY _id DESC", null);
+                cu.moveToFirst();
+                int lastId = cu.getInt(cu.getColumnIndex("_id"));
+
                 db.close();
             }
 
