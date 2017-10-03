@@ -101,7 +101,7 @@ public class SqlContentProvider extends ContentProvider {
                 //contentValues.
                 //contentValues.get("distance");
                 Date today = new Date();
-                SimpleDateFormat sd = new SimpleDateFormat("dd.MM.YYYY");
+                SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
                 String todate = sd.format(today);
                 contentValues.put("date", todate);
 

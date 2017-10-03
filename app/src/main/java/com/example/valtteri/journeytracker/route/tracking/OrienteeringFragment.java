@@ -54,6 +54,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -177,7 +178,7 @@ public class OrienteeringFragment extends Fragment implements
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
             }
         });
 
@@ -204,6 +205,7 @@ public class OrienteeringFragment extends Fragment implements
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
                 //Stop timer
                 handler.removeCallbacks(runnable);
+
                 //Change fragment to Main
                 Intent changetoMain = new Intent(getActivity(), MainActivity.class);
                 startActivity(changetoMain);
@@ -378,6 +380,7 @@ public class OrienteeringFragment extends Fragment implements
     public void onStop() {
         super.onStop();
         gac.disconnect();
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         stepCounter.unregister();
     }
 
@@ -480,7 +483,16 @@ public class OrienteeringFragment extends Fragment implements
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
         }
+        map.addPolyline(new PolylineOptions().geodesic(true)
+                .add(skole)
+                .add(new LatLng(60.221707, 24.803519))
+                .add(new LatLng(60.223498, 24.801964))
+                .add(new LatLng(60.221676, 24.805714))
+                .color(Color.RED)
+
+        );
     }
+
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
                 .position(position)

@@ -35,13 +35,17 @@
             android:value="@integer/google_play_services_version" />
         <service android:name="com.mbientlab.metawear.android.BtleService" />
         <activity android:name=".main.navigation.MainActivity">
+
+        <activity android:name=".main.navigation.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".route.tracking.RouteTrackActivity"></activity>
+        <activity android:name=".route.tracking.RouteTrackActivity"
+            android:screenOrientation="portrait"></activity>
         <provider
             android:authorities="com.example.valtteri.journeytracker.content.provider.contentprovider"
             android:name=".content.provider.SqlContentProvider"></provider>
