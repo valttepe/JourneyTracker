@@ -45,6 +45,9 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
         super.onCreate(savedInstanceState);
         cursorAdapter = new SqlCursorAdapter(getActivity(), null, 1);
 
+        //Makes sure that Loader does its job correctly when accessing fragment second time.
+        getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
 
     }
@@ -54,6 +57,7 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
                              Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_result, container, false);
         lv = (ListView)v.findViewById(android.R.id.list);
+
         return v;
     }
 
