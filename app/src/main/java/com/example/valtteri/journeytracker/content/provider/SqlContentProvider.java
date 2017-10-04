@@ -31,27 +31,27 @@ public class SqlContentProvider extends ContentProvider {
 
 
     public static final String getAll = "/getAll";
-    public static final String getOne = "/getOne";
     public static final String insertRoute = "/insertRoute";
     public static final String getOwnCoords = "/getOwnCoords";
+    public static final String getMarkerLoc = "/getMarkerLocations";
 
     public static final Uri get_ALL = Uri.parse(cont + PROVIDER_NAME + getAll);
     public static final Uri inserROUTE = Uri.parse(cont + PROVIDER_NAME + insertRoute);
-    public static final Uri get_Last = Uri.parse(cont + PROVIDER_NAME + getOne);
     public static final Uri getOwn_Coords = Uri.parse(cont + PROVIDER_NAME + getOwnCoords);
+    public static final Uri getMarker_Coordinates = Uri.parse(cont + PROVIDER_NAME + getMarkerLoc);
 
     public static final int getList = 1;
-    public static final int getOneResult = 2;
-    public static final int insertingRoute = 3;
-    public static final int getowncoords = 4;
+    public static final int insertingRoute = 2;
+    public static final int getowncoords = 3;
+    public static final int getmarkercoords = 4;
 
     static final UriMatcher uriMatcher;
     static{
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         uriMatcher.addURI(PROVIDER_NAME, getAll, getList);
-        uriMatcher.addURI(PROVIDER_NAME, getOne, getOneResult);
         uriMatcher.addURI(PROVIDER_NAME, insertRoute, insertingRoute);
         uriMatcher.addURI(PROVIDER_NAME, getOwnCoords, getowncoords);
+        uriMatcher.addURI(PROVIDER_NAME, getMarkerLoc, getmarkercoords);
 
     }
     // Coordinates variables for inserting
@@ -87,8 +87,11 @@ public class SqlContentProvider extends ContentProvider {
                 //Cursor c = db.query(myDbHelper.Table_route, projection, selection, null, null, null, null);
                 return c;
             case getowncoords:
-               Cursor cd = db.rawQuery("SELECT * FROM Coordinates WHERE RouteId = ?", selectionArgs );
+               Cursor cd = db.rawQuery("SELECT * FROM Coordinates WHERE routeId = ?", selectionArgs );
                 return cd;
+            case getmarkercoords:
+                Cursor cur = db.rawQuery("SELECT * FROM Markers WHERE routeId = ?", selectionArgs);
+                return cur;
             default:
                 break;
         }
@@ -104,7 +107,7 @@ public class SqlContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues contentValues) {
-        if(uriMatcher.match(uri) == 3){
+        if(uriMatcher.match(uri) == insertingRoute){
             // TODO: insert to database
             if(contentValues != null){
                 Log.d("TÄMÄ näin",contentValues.get("timer").toString() );
@@ -134,6 +137,13 @@ public class SqlContentProvider extends ContentProvider {
                         coordContent.put(myDbHelper.Latitude, locations.get(i).latitude);
                         db.insert(myDbHelper.Table_coordinates, null, coordContent);
 
+                    }
+                    for(int i = 0; i < markers.size() - 1; i++){
+                        ContentValues markerContent = new ContentValues();
+                        markerContent.put(myDbHelper.RouteId, lastId);
+                        markerContent.put(myDbHelper.Longitude, markers.get(i).longitude);
+                        markerContent.put(myDbHelper.Latitude, markers.get(i).latitude);
+                        db.insert(myDbHelper.Table_markers, null, markerContent);
                     }
                     db.setTransactionSuccessful();
                 } finally {
@@ -175,7 +185,7 @@ public class SqlContentProvider extends ContentProvider {
         private static final String MYTABLE_NAME = "Steps"; // Table name
         public static final String DATE = "date"; // Current date (YYYY:MM:DD)
         private static final String STEPCOUNT = "stepcount"; // Steps for one day
-        private static final String DROP_TABLE_STEPS ="DROP TABLE IF EXISTS "+MYTABLE_NAME; // Delete Table
+        //private static final String DROP_TABLE_STEPS ="DROP TABLE IF EXISTS "+MYTABLE_NAME; // Delete Table
         private static final String CREATE_TABLE = "CREATE TABLE " + MYTABLE_NAME + " ("
                 + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + DATE + " TEXT ," + STEPCOUNT + " INTEGER);";
         private Context context;
@@ -189,14 +199,17 @@ public class SqlContentProvider extends ContentProvider {
                 + TIMER + " TEXT);";
 
         public static final String Table_coordinates = "Coordinates";
-        public static final String Longitude = "Longitude";
-        public static final String Latitude = "Latitude";
-        public static final String RouteId = "RouteId";
+        public static final String Longitude = "longitude";
+        public static final String Latitude = "latitude";
+        public static final String RouteId = "routeId";
         private static final String Create_Coordinates_Table = "CREATE TABLE " + Table_coordinates + " ("
                 + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Longitude + " REAL ," + Latitude + " REAL ,"
                 + RouteId + " INTEGER);";
 
-
+        public static final String Table_markers = "Markers";
+        private static final String Create_Markers_Table = "CREATE TABLE " + Table_markers + " ("
+                + UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + Longitude + " REAL ," + Latitude + " REAL ,"
+                + RouteId + " INTEGER);";
 
 
 
@@ -212,6 +225,7 @@ public class SqlContentProvider extends ContentProvider {
                 sqLiteDatabase.execSQL(CREATE_TABLE);
                 sqLiteDatabase.execSQL(Create_Coordinates_Table);
                 sqLiteDatabase.execSQL(Create_Route_Table);
+                sqLiteDatabase.execSQL(Create_Markers_Table);
             } catch (Exception e) {
                 Log.e("HMMMMM", "Something is wrong" + e);
 
@@ -221,8 +235,6 @@ public class SqlContentProvider extends ContentProvider {
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             try {
-                Log.i("THIS Should be called", "Toimiix");
-                sqLiteDatabase.execSQL(DROP_TABLE_STEPS);
                 onCreate(sqLiteDatabase);
             }catch (Exception e) {
                 Log.e("HYYYMMM", "Something is " + e);

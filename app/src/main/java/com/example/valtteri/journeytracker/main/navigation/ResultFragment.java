@@ -28,8 +28,6 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
 
     // Content provider variables
     SqlCursorAdapter cursorAdapter;
-    static final String[] PROJECTION = new String[] { "_id", "date", "distance", "timer" };
-    static final String SELECTION = "";
     ListView lv;
     Bundle args;
     public String d, dis, time;
@@ -96,7 +94,7 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        return new CursorLoader(getActivity(), SqlContentProvider.get_ALL, PROJECTION, SELECTION, null, null);
+        return new CursorLoader(getActivity(), SqlContentProvider.get_ALL, null, null, null, null);
     }
 
     @Override

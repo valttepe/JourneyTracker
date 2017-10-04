@@ -12,22 +12,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
-import com.example.valtteri.journeytracker.route.tracking.AddTargetFragment;
 import com.example.valtteri.journeytracker.route.tracking.OnFragmentInteractionListener;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by Otto on 2.10.2017.
@@ -48,7 +40,8 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     // ContentProvider variables
     String[] selectionArgs = new String[1];
 
-    private Cursor ownCoordinatesCur;
+    private Cursor locationCursor;
+    private Cursor markerCursor;
 
 
     public ResultDetails() {
@@ -72,8 +65,11 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         }
         //Makes sure that Loader does its job correctly when accessing fragment second time.
         getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(1, null, this);
 
+        // Create cursor loader for the own coordinates
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
+
 
     }
 
@@ -178,16 +174,35 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        return new CursorLoader(getActivity(), SqlContentProvider.getOwn_Coords, null, null, selectionArgs, null );
+        if( id == 0){
+            return new CursorLoader(getActivity(), SqlContentProvider.getOwn_Coords, null, null, selectionArgs, null );
+        }
+        else if ( id == 1){
+            return new CursorLoader(getActivity(), SqlContentProvider.getMarker_Coordinates, null, null, selectionArgs, null );
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            ownCoordinatesCur = data;
-            ownCoordinatesCur.moveToFirst();
+            if( loader.getId() == 0) {
+                locationCursor = data;
+                locationCursor.moveToFirst();
 
-            Log.i("Jopas jotain", "" + ownCoordinatesCur.getString(ownCoordinatesCur.getColumnIndex("_id")));
+                Log.i("LocationCursor", "" + locationCursor.getString(locationCursor.getColumnIndex("_id")));
+                // Create cursor loader for the marker coordinates
+                getActivity().getSupportLoaderManager().initLoader(1, null, this);
+            }
+            else if( loader.getId() == 1) {
+                markerCursor = data;
+                markerCursor.moveToFirst();
+
+                Log.i("MarkerCursor", "" + markerCursor.getString(markerCursor.getColumnIndex("_id")));
+            }
+
+
     }
 
     @Override
