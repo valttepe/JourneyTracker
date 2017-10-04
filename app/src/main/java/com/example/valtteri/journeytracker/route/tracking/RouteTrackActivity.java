@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.example.valtteri.journeytracker.R;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 
 public class RouteTrackActivity extends AppCompatActivity implements OnFragmentInteractionListener {
 
@@ -46,4 +49,5 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
         ft.addToBackStack(null);
         ft.commit();
     }
+
 }

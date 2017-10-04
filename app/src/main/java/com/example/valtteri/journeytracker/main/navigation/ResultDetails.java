@@ -1,9 +1,13 @@
 package com.example.valtteri.journeytracker.main.navigation;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.valtteri.journeytracker.R;
+import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
 import com.example.valtteri.journeytracker.route.tracking.AddTargetFragment;
 import com.example.valtteri.journeytracker.route.tracking.OnFragmentInteractionListener;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,7 +33,8 @@ import org.w3c.dom.Text;
  * Created by Otto on 2.10.2017.
  */
 
-public class ResultDetails extends Fragment implements OnMapReadyCallback {
+public class ResultDetails extends Fragment implements OnMapReadyCallback,
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private OnFragmentInteractionListener mListener;
     GoogleMap googleMap;
@@ -39,6 +45,11 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
     String date;
     String timer;
 
+    // ContentProvider variables
+    String[] selectionArgs = new String[1];
+
+    private Cursor ownCoordinatesCur;
+
 
     public ResultDetails() {
 
@@ -46,6 +57,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if(getArguments() != null) {
             Log.i("Result arguments", getArguments().getString("distance"));
             Log.i("Result arguments", getArguments().getString("date"));
@@ -55,8 +67,14 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
             date = getArguments().getString("date");
             timer = getArguments().getString("timer");
 
+            selectionArgs[0] = getArguments().getString("id");
 
         }
+        //Makes sure that Loader does its job correctly when accessing fragment second time.
+        getActivity().getSupportLoaderManager().restartLoader(0, null, this);
+
+        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+
     }
 
     @Override
@@ -155,6 +173,25 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
 
+
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        return new CursorLoader(getActivity(), SqlContentProvider.getOwn_Coords, null, null, selectionArgs, null );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            ownCoordinatesCur = data;
+            ownCoordinatesCur.moveToFirst();
+
+            Log.i("Jopas jotain", "" + ownCoordinatesCur.getString(ownCoordinatesCur.getColumnIndex("_id")));
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 }

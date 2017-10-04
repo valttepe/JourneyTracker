@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.valtteri.journeytracker.route.tracking.OrienteeringFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
@@ -32,14 +33,17 @@ public class SqlContentProvider extends ContentProvider {
     public static final String getAll = "/getAll";
     public static final String getOne = "/getOne";
     public static final String insertRoute = "/insertRoute";
+    public static final String getOwnCoords = "/getOwnCoords";
 
     public static final Uri get_ALL = Uri.parse(cont + PROVIDER_NAME + getAll);
     public static final Uri inserROUTE = Uri.parse(cont + PROVIDER_NAME + insertRoute);
     public static final Uri get_Last = Uri.parse(cont + PROVIDER_NAME + getOne);
+    public static final Uri getOwn_Coords = Uri.parse(cont + PROVIDER_NAME + getOwnCoords);
 
     public static final int getList = 1;
     public static final int getOneResult = 2;
     public static final int insertingRoute = 3;
+    public static final int getowncoords = 4;
 
     static final UriMatcher uriMatcher;
     static{
@@ -47,8 +51,13 @@ public class SqlContentProvider extends ContentProvider {
         uriMatcher.addURI(PROVIDER_NAME, getAll, getList);
         uriMatcher.addURI(PROVIDER_NAME, getOne, getOneResult);
         uriMatcher.addURI(PROVIDER_NAME, insertRoute, insertingRoute);
+        uriMatcher.addURI(PROVIDER_NAME, getOwnCoords, getowncoords);
 
     }
+    // Coordinates variables for inserting
+    private ArrayList<LatLng> markers;
+    private ArrayList<LatLng> locations;
+    int lastId;
 
     myDbHelper dbHelper;
 
@@ -77,8 +86,9 @@ public class SqlContentProvider extends ContentProvider {
                 Cursor c = db.rawQuery("SELECT * FROM Route ORDER BY _id DESC", null);
                 //Cursor c = db.query(myDbHelper.Table_route, projection, selection, null, null, null, null);
                 return c;
-            case getOneResult:
-                break;
+            case getowncoords:
+               Cursor cd = db.rawQuery("SELECT * FROM Coordinates WHERE RouteId = ?", selectionArgs );
+                return cd;
             default:
                 break;
         }
@@ -103,15 +113,32 @@ public class SqlContentProvider extends ContentProvider {
                 Date today = new Date();
                 SimpleDateFormat sd = new SimpleDateFormat("dd.MM.yyyy");
                 String todate = sd.format(today);
-                contentValues.put("date", todate);
-
+                contentValues.put(myDbHelper.DATE, todate);
+                markers = OrienteeringFragment.markerPositions;
+                locations = OrienteeringFragment.locations;
                 dbHelper.getWritableDatabase();
 
                 db.insert(myDbHelper.Table_route, null, contentValues);
 
-                Cursor cu = db.rawQuery("SELECT * FROM Route ORDER BY _id DESC", null);
-                cu.moveToFirst();
-                int lastId = cu.getInt(cu.getColumnIndex("_id"));
+                Cursor cu = db.rawQuery("SELECT * FROM Route", null);
+                cu.moveToLast();
+                lastId = cu.getInt(cu.getColumnIndex("_id"));
+                Log.i("mmmmmm", "" + lastId);
+
+                db.beginTransaction();
+                try {
+                    for (int i= 0; i< locations.size() - 1; i++){
+                        ContentValues coordContent = new ContentValues();
+                        coordContent.put(myDbHelper.RouteId, lastId);
+                        coordContent.put(myDbHelper.Longitude, locations.get(i).longitude);
+                        coordContent.put(myDbHelper.Latitude, locations.get(i).latitude);
+                        db.insert(myDbHelper.Table_coordinates, null, coordContent);
+
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
 
                 db.close();
             }
@@ -132,6 +159,7 @@ public class SqlContentProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String s, @Nullable String[] strings) {
         return 0;
     }
+
 
 
     static class myDbHelper extends SQLiteOpenHelper {
