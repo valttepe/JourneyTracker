@@ -133,12 +133,14 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
             curi = cursor;
             date = (TextView)view.findViewById(R.id.date);
             distance = (TextView)view.findViewById(R.id.distance);
+            timer = view.findViewById(R.id.timer);
             d = cursor.getString(cursor.getColumnIndex("date"));
             dis = cursor.getString(cursor.getColumnIndex("distance"));
             time = cursor.getString(cursor.getColumnIndex("timer"));
             if(d != null || dis != null) {
                 date.setText(d);
                 distance.setText(dis);
+                timer.setText(time);
             }
         }
     }

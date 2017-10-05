@@ -2,6 +2,7 @@ package com.example.valtteri.journeytracker.main.navigation;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,9 +18,15 @@ import android.widget.TextView;
 import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
 import com.example.valtteri.journeytracker.route.tracking.OnFragmentInteractionListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
 
 /**
  * Created by Otto on 2.10.2017.
@@ -30,12 +37,16 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     private OnFragmentInteractionListener mListener;
     GoogleMap googleMap;
+    boolean ownLocLoadsRun = false;
+    boolean markerLocLoadsRun = false;
     TextView dateTv;
     TextView distanceTv;
     TextView timerTv;
     String distance;
     String date;
     String timer;
+    ArrayList<LatLng> ownLocations;
+    ArrayList<LatLng> markerLocations;
 
     // ContentProvider variables
     String[] selectionArgs = new String[1];
@@ -67,7 +78,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         }
         //Makes sure that Loader does its job correctly when accessing fragment second time.
         getActivity().getSupportLoaderManager().restartLoader(0, null, this);
-        getActivity().getSupportLoaderManager().restartLoader(1, null, this);
+
 
         // Create cursor loader for the own coordinates
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
@@ -85,6 +96,9 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         distanceTv = v.findViewById(R.id.kiloMeters);
         timerTv = v.findViewById(R.id.stopWatch);
 
+        ownLocations = new ArrayList<>();
+        markerLocations = new ArrayList<>();
+
         dateTv.setText(date);
 
         if (Double.valueOf(distance) >= 1000) {
@@ -98,7 +112,19 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         timerTv.setText(timer);
 
 
+
+
+
+
+
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
     }
 
     @Override
@@ -128,8 +154,24 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap map) {
+        googleMap = map;
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+    }
+
+    private void drawLine(ArrayList<LatLng> locations) {
+        googleMap.addPolyline(new PolylineOptions().geodesic(true)
+                    .color(Color.RED)
+                    .addAll(locations)
+            );
+    }
+
+    private void addTarget(LatLng position) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(position)
+                .title("Remove marker")
+                .draggable(true));
 
     }
 
@@ -148,20 +190,63 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            if( loader.getId() == 0) {
+            if( loader.getId() == 0 && data.getCount() != 0) {
                 locationCursor = data;
                 locationCursor.moveToFirst();
 
-                Log.i("LocationCursor", "" + locationCursor.getString(locationCursor.getColumnIndex("_id")));
+                double test = locationCursor.getDouble(locationCursor.getColumnIndex("latitude"));
+
+                Log.i("LocationCursor", "" + test);
+
+                for(int i = 0; i < locationCursor.getCount(); i++){
+
+                    locationCursor.moveToPosition(i);
+                    Log.d(locationCursor.getString(locationCursor.getColumnIndex("latitude")), locationCursor.getString(locationCursor.getColumnIndex("longitude")));
+
+                    LatLng loc = new LatLng
+                            (Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("latitude"))),
+                                    Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("longitude"))));
+                    ownLocations.add(loc);
+                    Log.d(locationCursor.getString(locationCursor.getColumnIndex("latitude")), locationCursor.getString(locationCursor.getColumnIndex("longitude")));
+                }
+
+
+                getActivity().getSupportLoaderManager().restartLoader(1, null, this);
                 // Create cursor loader for the marker coordinates
                 getActivity().getSupportLoaderManager().initLoader(1, null, this);
+
+
+                ownLocLoadsRun = true;
             }
-            else if( loader.getId() == 1) {
+            else if( loader.getId() == 1 && data.getCount() != 0) {
                 markerCursor = data;
                 markerCursor.moveToFirst();
 
                 Log.i("MarkerCursor", "" + markerCursor.getString(markerCursor.getColumnIndex("_id")));
+
+                for(int i = 0; i < markerCursor.getCount(); i++){
+
+                    markerCursor.moveToPosition(i);
+                    LatLng loc = new LatLng
+                            (Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("latitude"))),
+                                    Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("longitude"))));
+                    markerLocations.add(loc);
+                    Log.d("TULLEET MARKERIT", markerCursor.getString(markerCursor.getColumnIndex("latitude")));
+                }
+                for(LatLng markerLocs : markerLocations) {
+                    addTarget(markerLocs);
+
+                }
+
+                markerLocLoadsRun = true;
             }
+
+            if(ownLocLoadsRun == true && markerLocLoadsRun == true) {
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ownLocations.get(0), 16));
+
+                drawLine(ownLocations);
+            }
+
 
 
     }

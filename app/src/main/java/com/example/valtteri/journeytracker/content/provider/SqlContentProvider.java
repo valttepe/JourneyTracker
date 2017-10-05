@@ -130,7 +130,7 @@ public class SqlContentProvider extends ContentProvider {
 
                 db.beginTransaction();
                 try {
-                    for (int i= 0; i< locations.size() - 1; i++){
+                    for (int i= 0; i< locations.size(); i++){
                         ContentValues coordContent = new ContentValues();
                         coordContent.put(myDbHelper.RouteId, lastId);
                         coordContent.put(myDbHelper.Longitude, locations.get(i).longitude);
@@ -138,7 +138,7 @@ public class SqlContentProvider extends ContentProvider {
                         db.insert(myDbHelper.Table_coordinates, null, coordContent);
 
                     }
-                    for(int i = 0; i < markers.size() - 1; i++){
+                    for(int i = 0; i < markers.size(); i++){
                         ContentValues markerContent = new ContentValues();
                         markerContent.put(myDbHelper.RouteId, lastId);
                         markerContent.put(myDbHelper.Longitude, markers.get(i).longitude);

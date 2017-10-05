@@ -55,6 +55,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -125,7 +126,10 @@ public class OrienteeringFragment extends Fragment implements
 
             for (LatLng locs : markerPositions) {
                 Log.d("RECEIVED LOCATIONS ", locs.toString());
+
+
             }
+
         }
     }
 
@@ -201,8 +205,8 @@ public class OrienteeringFragment extends Fragment implements
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
-                //markerPositions.get(0);
-                //locations.get(0);
+                markerPositions.get(0);
+                locations.get(0);
                 // TODO: Coordinates
 
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
@@ -508,17 +512,24 @@ public class OrienteeringFragment extends Fragment implements
         }
         googleMap.setMyLocationEnabled(true);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(suomi, 5));
+        /*for (int i = 0; i < markerPositions.size() -1; i++) {
+            LatLng src = markerPositions.get(i);
+            LatLng dest = markerPositions.get(i + 1);
+
+                googleMap.addPolyline(
+                        new PolylineOptions().add(
+                                new LatLng(src.latitude, src.longitude),
+                                new LatLng(dest.latitude, dest.longitude)
+                        ).geodesic(true).color(Color.RED)
+                );
+
+        }*/
 
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
+            googleMap.addPolyline(new PolylineOptions().addAll(markerPositions).geodesic(true).color(Color.RED));
         }
-        map.addPolyline(new PolylineOptions().geodesic(true)
-                .add(suomi)
-                .add(new LatLng(60.221707, 24.803519))
-                .add(new LatLng(60.223498, 24.801964))
-                .add(new LatLng(60.221676, 24.805714))
-                .color(Color.RED)
-        );
+
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
