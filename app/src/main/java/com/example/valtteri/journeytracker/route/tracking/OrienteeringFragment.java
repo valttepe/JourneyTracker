@@ -85,6 +85,9 @@ public class OrienteeringFragment extends Fragment implements
     private static final int REQUEST_CHECK_SETTINGS = 61124;
     private GoogleMap googleMap;
     boolean mRequestingLocationUpdates;
+    boolean isMapZoomOn = true;
+    boolean ifCircleIsGot = false;
+    LatLng myLocation;
     double lat;
     double lon;
     double latCombined = 0;
@@ -97,10 +100,10 @@ public class OrienteeringFragment extends Fragment implements
     float distanceThis;
     private StepCheck stepCounter;
     boolean stepsTaken = false;
-    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
-    int Seconds, Minutes, Hours ;
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
+    int Seconds, Minutes, Hours;
     int everyFifthValue = 0;
-    TextView stopWatch ;
+    TextView stopWatch;
     TextView metersTotal;
     Handler handler;
     String finalTime;
@@ -115,11 +118,11 @@ public class OrienteeringFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             Log.i("Add target arguments", getArguments().getString("param1"));
             markerPositions = getArguments().getParcelableArrayList(AddTargetFragment.TARGETS);
 
-            for(LatLng locs : markerPositions) {
+            for (LatLng locs : markerPositions) {
                 Log.d("RECEIVED LOCATIONS ", locs.toString());
             }
         }
@@ -140,12 +143,12 @@ public class OrienteeringFragment extends Fragment implements
         View v = inflater.inflate(R.layout.fragment_orienteering, container, false);
 
 
-        handler = new Handler() ;
+        handler = new Handler();
 
         //get the spinner from the xml.
-        Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
+        Spinner dropdown = (Spinner) v.findViewById(R.id.spinner1);
         //create a list of items for the spinner.
-        String[] items = new String[]{"Satellite", "Roadmap", "Terrain", "Hybrid"};
+        String[] items = new String[]{"Hybrid", "Roadmap", "Terrain", "Satellite"};
         /*
         create an adapter to describe how the items are displayed, adapters are used in several places in android.
         There are multiple variations of this, but this is the basic variant.
@@ -159,18 +162,15 @@ public class OrienteeringFragment extends Fragment implements
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                if(selectedItem.equals("Roadmap")) {
+                if (selectedItem.equals("Roadmap")) {
                     googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
-                }
-                else if(selectedItem.equals("Satellite")) {
+                } else if (selectedItem.equals("Satellite")) {
                     googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
 
-                }
-                else if(selectedItem.equals("Terrain")) {
+                } else if (selectedItem.equals("Terrain")) {
                     googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
 
-                }
-                else if(selectedItem.equals("Hybrid")) {
+                } else if (selectedItem.equals("Hybrid")) {
                     googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
 
                 }
@@ -178,7 +178,7 @@ public class OrienteeringFragment extends Fragment implements
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+                googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
             }
         });
 
@@ -186,13 +186,14 @@ public class OrienteeringFragment extends Fragment implements
         stepCounter.setListener(this);
         locations = new ArrayList<>();
         stopbtn = v.findViewById(R.id.stop_button);
-        stopWatch = (TextView)v.findViewById(R.id.stopWatch);
-        metersTotal = (TextView)v.findViewById(R.id.metersTotal);
+        stopWatch = (TextView) v.findViewById(R.id.stopWatch);
+        metersTotal = (TextView) v.findViewById(R.id.metersTotal);
+
+
         stopbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //TODO finalTime contains the final time of stop watch
-
 
 
                 finalTime = stopWatch.getText().toString();
@@ -274,25 +275,33 @@ public class OrienteeringFragment extends Fragment implements
                 Log.d("Location result", locationResult.toString());
                 for (Location location : locationResult.getLocations()) {
 
-                     lat = location.getLatitude();
-                     lon = location.getLongitude();
-                     setLoc(lat, lon);
+                    lat = location.getLatitude();
+                    lon = location.getLongitude();
+                    setLoc(lat, lon);
 
                     //Todo myLocation contains real time locations
-                    LatLng myLocation = new LatLng(getLat(), getLon());
+                    myLocation = new LatLng(getLat(), getLon());
 
+                    //getLocCircle();
 
 
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
-                    if(myLocation != null) {
+                   /* if (myLocation != null) {
                         myLoc.setCenter(myLocation);
+                    }*/
+                    if (prevLat != 0 && isMapZoomOn == true) {
+
+                        Log.d("MENNÄÄKS", "TÄHÄN???");
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+                    } else if (isMapZoomOn == false) {
+
                     }
 
 
                     //Combine latitudes and longitudes.
-                    if(prevLat != 0 && prevLon != 0 ) {
+                    if (prevLat != 0 && prevLon != 0) {
                         latCombined = latCombined + lat;
                         lonCombined = lonCombined + lon;
 
@@ -324,20 +333,22 @@ public class OrienteeringFragment extends Fragment implements
                         everyFifthValue = 0;
                     }
 
-                    if(avgLat > 0 && avgLon > 0) {
+                    if (avgLat > 0 && avgLon > 0) {
                         Log.d("MENNÄÄKS TÄNNE?", "JOOOO");
                         prevLat = avgLat;
                         prevLon = avgLon;
-                    }else {
+                    } else {
                         Log.d("MENNÄÄKS TÄNNE HETKEKS?", "JOO");
                         prevLat = lat;
                         prevLon = lon;
                     }
                     everyFifthValue = everyFifthValue + 1;
                 }
-                   // googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                // googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
             }
         };
+
+
         return v;
     }
 
@@ -363,6 +374,18 @@ public class OrienteeringFragment extends Fragment implements
         return lon;
     }
 
+   /* public void getLocCircle() {
+        if (ifCircleIsGot == false) {
+            myLoc = googleMap.addCircle(new CircleOptions()
+                    .center(myLocation)
+                    .fillColor(Color.WHITE)
+                    .strokeColor(Color.MAGENTA)
+                    .visible(true)
+                    .radius(15));
+        }
+        ifCircleIsGot = true;
+    }*/
+
     public void onStart() {
         gac.connect();
         super.onStart();
@@ -372,7 +395,7 @@ public class OrienteeringFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         startLocationUpdates();
-        if(!stepCounter.register()) {
+        if (!stepCounter.register()) {
             Toast.makeText(getActivity(), "Step counter not supported!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -389,7 +412,7 @@ public class OrienteeringFragment extends Fragment implements
         double lng1 = (p1.longitude);
         double lat2 = (p2.latitude);
         double lng2 = (p2.longitude);
-        float [] dist = new float[1];
+        float[] dist = new float[1];
         Location.distanceBetween(lat1, lng1, lat2, lng2, dist);
         return dist[0];
     }
@@ -468,29 +491,40 @@ public class OrienteeringFragment extends Fragment implements
 
     @Override
     public void onMapReady(GoogleMap map) {
-        LatLng skole = new LatLng(60.2208061, 24.8030184);
+        LatLng suomi = new LatLng(60.11021, 24.7385007);
         googleMap = map;
-        googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(skole, 15));
-
-        myLoc = googleMap.addCircle(new CircleOptions()
-                .center(skole)
-                .fillColor(Color.WHITE)
-                .strokeColor(Color.MAGENTA)
-                .visible(true)
-                .radius(20));
+        googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        googleMap.setMyLocationEnabled(true);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(suomi, 5));
 
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
         }
         map.addPolyline(new PolylineOptions().geodesic(true)
-                .add(skole)
+                .add(suomi)
                 .add(new LatLng(60.221707, 24.803519))
                 .add(new LatLng(60.223498, 24.801964))
                 .add(new LatLng(60.221676, 24.805714))
                 .color(Color.RED)
-
         );
+
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng position) {
+                isMapZoomOn = false;
+            }
+        });
+
     }
 
     private void addTarget(LatLng position) {

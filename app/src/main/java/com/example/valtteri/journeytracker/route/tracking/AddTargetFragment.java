@@ -85,7 +85,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         //get the spinner from the xml.
         Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
         //create a list of items for the spinner.
-        String[] items = new String[]{"Satellite", "Roadmap", "Terrain", "Hybrid"};
+        String[] items = new String[]{"Hybrid", "Roadmap", "Terrain", "Satellite"};
         /*
         create an adapter to describe how the items are displayed, adapters are used in several places in android.
         There are multiple variations of this, but this is the basic variant.
@@ -118,7 +118,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+                googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
             }
         });
 
@@ -181,6 +181,8 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
 
         googleMap = map;
+
+        googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
 
         LatLng start = new LatLng(60.32453, 25.0516);
 
