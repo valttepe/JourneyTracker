@@ -30,6 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
@@ -108,8 +109,8 @@ public class OrienteeringFragment extends Fragment implements
     Handler handler;
     String finalTime;
     Circle myLoc;
-    ArrayList<LatLng> markerPositions = new ArrayList<>();
-    ArrayList<LatLng> locations;
+    public static ArrayList<LatLng> markerPositions = new ArrayList<>();
+    public static ArrayList<LatLng> locations;
 
     public OrienteeringFragment() {
         // Required empty public constructor
@@ -203,6 +204,7 @@ public class OrienteeringFragment extends Fragment implements
                 //markerPositions.get(0);
                 //locations.get(0);
                 // TODO: Coordinates
+
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
                 //Stop timer
                 handler.removeCallbacks(runnable);
