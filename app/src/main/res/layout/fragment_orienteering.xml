@@ -34,6 +34,17 @@
         app:layout_constraintTop_toTopOf="@+id/map" />
 
 
+    <Button
+        android:id="@+id/centerButton"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="8dp"
+        android:text="Center"
+        app:layout_constraintBottom_toTopOf="@+id/metersTotal"
+        android:visibility="invisible"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="@+id/map" />
+
     <TextView
         android:id="@+id/metersTotal"
         android:layout_width="0dp"

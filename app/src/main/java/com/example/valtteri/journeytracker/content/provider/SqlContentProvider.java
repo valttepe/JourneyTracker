@@ -119,7 +119,7 @@ public class SqlContentProvider extends ContentProvider {
                 contentValues.put(myDbHelper.DATE, todate);
                 markers = OrienteeringFragment.markerPositions;
                 locations = OrienteeringFragment.locations;
-                dbHelper.getWritableDatabase();
+                db = dbHelper.getWritableDatabase();
 
                 db.insert(myDbHelper.Table_route, null, contentValues);
 
