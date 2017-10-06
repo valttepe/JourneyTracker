@@ -11,6 +11,8 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,6 +69,7 @@ import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -78,6 +81,7 @@ public class OrienteeringFragment extends Fragment implements
         StepCheck.StepCounterListener {
 
     private Button stopbtn;
+    private Button center;
     private OnFragmentInteractionListener mListener;
     GoogleApiClient gac;
     Location loc;
@@ -88,16 +92,20 @@ public class OrienteeringFragment extends Fragment implements
     private GoogleMap googleMap;
     boolean mRequestingLocationUpdates;
     boolean isMapZoomOn = true;
-    boolean ifCircleIsGot = false;
+    boolean centerButtonVisible = false;
     LatLng myLocation;
+    LatLng locNow;
+    LatLng locPrev;
     double lat;
     double lon;
     double latCombined = 0;
     double lonCombined = 0;
-    double avgLat;
-    double avgLon;
+    double medLat;
+    double medLon;
     double prevLat = 0;
     double prevLon = 0;
+    ArrayList<Double> medianValuesLat;
+    ArrayList<Double> medianValuesLon;
     float distanceTotal = 0;
     float distanceThis;
     private StepCheck stepCounter;
@@ -109,6 +117,8 @@ public class OrienteeringFragment extends Fragment implements
     TextView metersTotal;
     Handler handler;
     String finalTime;
+    SensorManager mSensorManager;
+    Sensor stepDetector;
     Circle myLoc;
     public static ArrayList<LatLng> markerPositions = new ArrayList<>();
     public static ArrayList<LatLng> locations;
@@ -147,6 +157,17 @@ public class OrienteeringFragment extends Fragment implements
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_orienteering, container, false);
 
+        stepCounter = new StepCheck(getActivity());
+        stepCounter.setListener(this);
+        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        stepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        locations = new ArrayList<>();
+        medianValuesLat = new ArrayList<Double>();
+        medianValuesLon = new ArrayList<Double>();
+        stopbtn = v.findViewById(R.id.stop_button);
+        center = v.findViewById(R.id.centerButton);
+        stopWatch = (TextView) v.findViewById(R.id.stopWatch);
+        metersTotal = (TextView) v.findViewById(R.id.metersTotal);
 
         handler = new Handler();
 
@@ -187,12 +208,7 @@ public class OrienteeringFragment extends Fragment implements
             }
         });
 
-        stepCounter = new StepCheck(getActivity());
-        stepCounter.setListener(this);
-        locations = new ArrayList<>();
-        stopbtn = v.findViewById(R.id.stop_button);
-        stopWatch = (TextView) v.findViewById(R.id.stopWatch);
-        metersTotal = (TextView) v.findViewById(R.id.metersTotal);
+
 
 
         stopbtn.setOnClickListener(new View.OnClickListener() {
@@ -200,13 +216,12 @@ public class OrienteeringFragment extends Fragment implements
             public void onClick(View view) {
                 //TODO finalTime contains the final time of stop watch
 
-
                 finalTime = stopWatch.getText().toString();
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
-                markerPositions.get(0);
-                locations.get(0);
+//                markerPositions.get(0);
+  //              locations.get(0);
                 // TODO: Coordinates
 
                 getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
@@ -218,6 +233,8 @@ public class OrienteeringFragment extends Fragment implements
                 startActivity(changetoMain);
             }
         });
+
+
         //Start the stopwatch
         StartTime = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
@@ -288,45 +305,49 @@ public class OrienteeringFragment extends Fragment implements
                     //Todo myLocation contains real time locations
                     myLocation = new LatLng(getLat(), getLon());
 
-                    //getLocCircle();
-
-
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
-                   /* if (myLocation != null) {
-                        myLoc.setCenter(myLocation);
-                    }*/
                     if (prevLat != 0 && isMapZoomOn == true) {
 
                         Log.d("MENNÄÄKS", "TÄHÄN???");
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
                     } else if (isMapZoomOn == false) {
-
+                            center.setVisibility(View.VISIBLE);
+                            center.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+                                    center.setVisibility(View.INVISIBLE);
+                                    isMapZoomOn = true;
+                                }
+                            });
                     }
 
 
                     //Combine latitudes and longitudes.
-                    if (prevLat != 0 && prevLon != 0) {
+                  /*  if (prevLat != 0 && prevLon != 0) {
                         latCombined = latCombined + lat;
                         lonCombined = lonCombined + lon;
 
                         Log.d("LATITUDE YHTEENSÄ", Double.toString(latCombined));
                         Log.d("LONGITUDE YHTEENSÄ", Double.toString(lonCombined));
-                    }
+                    }*/
+                    medianValuesLat.add(lat);
+                    medianValuesLon.add(lon);
 
-                    //Get the average location in every fifth callbacks to get more accurate meter calculation.
-                    if (everyFifthValue % 5 == 0) {
+                    //Get the median location in every fifth callbacks to get more accurate meter calculation.
+                    if (everyFifthValue % 5 == 0 && everyFifthValue != 0) {
 
-                        avgLat = latCombined / 5;
-                        avgLon = lonCombined / 5;
-                        Log.d("LATITUDE KESKIARVO", Double.toString(avgLat));
-                        Log.d("LATITUDE KESKIARVO", Double.toString(avgLon));
+                        medLat = medianLat(medianValuesLat);
+                        medLon = medianLon(medianValuesLon);
+                        Log.d("LATITUDE KESKIARVO", Double.toString(medLat));
+                        Log.d("LATITUDE KESKIARVO", Double.toString(medLon));
 
-                        LatLng locNow = new LatLng(avgLat, avgLon);
-                        LatLng locPrev = new LatLng(prevLat, prevLon);
+                        locNow = new LatLng(medLat, medLon);
+                        locPrev = new LatLng(prevLat, prevLon);
 
-                        if (stepsTaken) {
+                        if (stepsTaken || stepDetector != null) {
                             distanceThis = getDistance(locNow, locPrev);
                             //Todo distanceTotal contains the final meters
                             distanceTotal = distanceTotal + distanceThis;
@@ -334,15 +355,16 @@ public class OrienteeringFragment extends Fragment implements
                             Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
                         }
 
-                        latCombined = 0;
-                        lonCombined = 0;
+
+                        medianValuesLat.clear();
+                        medianValuesLon.clear();
                         everyFifthValue = 0;
                     }
 
-                    if (avgLat > 0 && avgLon > 0) {
+                    if (medLat > 0 && medLon > 0) {
                         Log.d("MENNÄÄKS TÄNNE?", "JOOOO");
-                        prevLat = avgLat;
-                        prevLon = avgLon;
+                        prevLat = medLat;
+                        prevLon = medLon;
                     } else {
                         Log.d("MENNÄÄKS TÄNNE HETKEKS?", "JOO");
                         prevLat = lat;
@@ -378,6 +400,29 @@ public class OrienteeringFragment extends Fragment implements
 
     public double getLon() {
         return lon;
+    }
+
+    public static double medianLat(ArrayList<Double> mLat) {
+        Collections.sort(mLat);
+        int middle = mLat.size()/2;
+
+        if (mLat.size()%2 == 1) {
+            return mLat.get(middle);
+        } else {
+            return (mLat.get(middle-1) + mLat.get(middle)) / 2.0;
+        }
+
+    }
+    public static double medianLon(ArrayList<Double> mLon) {
+        Collections.sort(mLon);
+        int middle = mLon.size()/2;
+
+        if (mLon.size()%2 == 1) {
+            return mLon.get(middle);
+        } else {
+            return (mLon.get(middle-1) + mLon.get(middle)) / 2.0;
+        }
+
     }
 
    /* public void getLocCircle() {
@@ -512,22 +557,10 @@ public class OrienteeringFragment extends Fragment implements
         }
         googleMap.setMyLocationEnabled(true);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(suomi, 5));
-        /*for (int i = 0; i < markerPositions.size() -1; i++) {
-            LatLng src = markerPositions.get(i);
-            LatLng dest = markerPositions.get(i + 1);
 
-                googleMap.addPolyline(
-                        new PolylineOptions().add(
-                                new LatLng(src.latitude, src.longitude),
-                                new LatLng(dest.latitude, dest.longitude)
-                        ).geodesic(true).color(Color.RED)
-                );
-
-        }*/
 
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
-            googleMap.addPolyline(new PolylineOptions().addAll(markerPositions).geodesic(true).color(Color.RED));
         }
 
 
@@ -535,6 +568,9 @@ public class OrienteeringFragment extends Fragment implements
             @Override
             public void onMapClick(LatLng position) {
                 isMapZoomOn = false;
+                centerButtonVisible = true;
+                center.setVisibility(View.VISIBLE);
+
             }
         });
 
