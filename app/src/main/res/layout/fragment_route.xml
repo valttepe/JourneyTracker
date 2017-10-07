@@ -12,7 +12,7 @@
         style="@style/ButtonTheme"
         android:layout_width="150dp"
         android:layout_height="100dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="160dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg_rounded_corners"
         android:fontFamily="sans-serif"
@@ -21,7 +21,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/steps_view"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintLeft_creator="1" />
 
