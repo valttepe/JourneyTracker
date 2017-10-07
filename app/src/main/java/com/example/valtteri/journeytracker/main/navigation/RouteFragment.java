@@ -23,14 +23,11 @@ import com.example.valtteri.journeytracker.route.tracking.RouteTrackActivity;
  * Created by Valtteri on 19.9.2017.
  */
 
-public class RouteFragment extends Fragment implements SensorEventListener {
+public class RouteFragment extends Fragment {
 
 
-    private SensorManager mSensorManager;
     boolean activityRunning;
     Button startbtn;
-    TextView steps;
-    private int stepsInSensor = 1;
 
     public RouteFragment() {
         // Required empty public constructor
@@ -40,7 +37,6 @@ public class RouteFragment extends Fragment implements SensorEventListener {
                              Bundle savedInstanceState){
         View v = inflater.inflate(R.layout.fragment_route, container, false);
         startbtn = v.findViewById(R.id.start_button);
-        steps = v.findViewById(R.id.steps_view);
         startbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -48,43 +44,19 @@ public class RouteFragment extends Fragment implements SensorEventListener {
                 startActivity(changetoTracking);
             }
         });
-        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-
 
         return v;
     }
-
 
     @Override
     public void onResume() {
         super.onResume();
         activityRunning = true;
-        Sensor countSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        if (countSensor != null) {
-            mSensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
-        } else {
-            Toast.makeText(getActivity(), "Count sensor not available!", Toast.LENGTH_LONG).show();
-
-        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         activityRunning = false;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (activityRunning) {
-            Log.d("AABLYAT", sensorEvent.toString());
-
-            steps.setText(String.valueOf(stepsInSensor++));
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
     }
 }

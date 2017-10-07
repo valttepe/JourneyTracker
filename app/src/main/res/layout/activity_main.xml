@@ -34,9 +34,9 @@
         android:id="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
-        app:menu="@menu/navigation"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom"
+        android:background="?android:windowBackground"
+        app:menu="@menu/navigation" />
 
 
 </LinearLayout>

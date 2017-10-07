@@ -296,4 +296,5 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         ft.addToBackStack(null);
         ft.commit();
     }
+
 }

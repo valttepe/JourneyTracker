@@ -1,19 +1,25 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
 import com.example.valtteri.journeytracker.R;
+import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -59,7 +65,6 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_add_target, container, false);
-
 
         markerPositions = new ArrayList<>();
         readybtn = v.findViewById(R.id.ready_button);
@@ -146,6 +151,12 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
            }
        }
     }
+
+    public void onResume() {
+        super.onResume();
+
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
