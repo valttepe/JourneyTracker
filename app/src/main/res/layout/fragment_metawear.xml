@@ -7,9 +7,21 @@
     tools:layout_editor_absoluteY="81dp"
     tools:layout_editor_absoluteX="0dp">
 
-    <!-- app:srcCompat="@drawable/ic_navigation_black_24dp" -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/metawear_compass"
+        android:contentDescription="@string/metawear_compass"
+        android:id="@+id/textView"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/ex_pointer" />
     <ImageView
         android:id="@+id/pointer"
+        android:contentDescription="@string/metawear_compass"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginBottom="80dp"
@@ -19,6 +31,18 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:srcCompat="@drawable/ic_compass_rose_simple" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/internal_compass"
+        android:text="@string/internal_compass"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/pointer" />
 
     <ImageView
         android:id="@+id/ex_pointer"
@@ -30,6 +54,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_compass_rose_simple" />
+        app:srcCompat="@drawable/ic_compass_rose_simple"
+        android:contentDescription="@string/internal_compass" />
 
 </android.support.constraint.ConstraintLayout>

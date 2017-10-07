@@ -3,14 +3,11 @@ package com.example.valtteri.journeytracker.route.tracking;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
@@ -53,12 +50,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -66,12 +59,8 @@ import com.google.android.gms.tasks.Task;
 import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class OrienteeringFragment extends Fragment implements
@@ -224,7 +213,7 @@ public class OrienteeringFragment extends Fragment implements
   //              locations.get(0);
                 // TODO: Coordinates
 
-                getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
+                getActivity().getContentResolver().insert(SqlContentProvider.insertROUTE, values);
                 //Stop timer
                 handler.removeCallbacks(runnable);
 

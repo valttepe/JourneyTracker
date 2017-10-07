@@ -1,24 +1,16 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
-
 import com.example.valtteri.journeytracker.R;
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
 
 public class RouteTrackActivity extends AppCompatActivity implements OnFragmentInteractionListener {
 
     FragmentTransaction ft;
-    FragmentManager fm;
-    private Boolean exit = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +35,10 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
         }
     }
 
+    // Interface method which is called from the AddTargetFragment
     @Override
     public void changeFragment(Bundle bundle) {
+        // Creating new fragment and setting bundle that contains markers LatLng array list.
         OrienteeringFragment newFrag = new OrienteeringFragment();
         newFrag.setArguments(bundle);
         ft = getSupportFragmentManager().beginTransaction();
@@ -54,20 +48,20 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
     }
     @Override
     public void onBackPressed() {
-        if (exit) {
-            finish(); // finish activity
-        } else {
-            Toast.makeText(this, "Press Back again to Exit.",
-                    Toast.LENGTH_SHORT).show();
-            exit = true;
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    exit = false;
-                }
-            }, 3 * 1000);
+        // if androids own back button is pressed then UI alerts with dialog that either does nothing or goes to back main page.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Are you sure that you want to exit?")
+                .setMessage("Current tracking data will be lost")
+                .setCancelable(true)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        finish(); // finish activity
+                    }
+                });
+        AlertDialog alert = builder.create();
+        alert.show();
 
-        }
 
     }
 
