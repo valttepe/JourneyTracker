@@ -73,6 +73,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     private float exCurrentDegree = 0f;
     private float changeToMicros = 1000000;
     private float changeToaccel = 9.81f;
+    private boolean isBound = false;
 
 
     public MetaWearFragment() {
@@ -82,7 +83,8 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().bindService(new Intent(getActivity(), BtleService.class),
+        //Bind the service when the activity is created
+       isBound = getActivity().getApplicationContext().bindService(new Intent(getActivity(), BtleService.class),
                 this, Context.BIND_AUTO_CREATE);
     }
 
@@ -99,7 +101,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
         }
         mPointerEx = (ImageView)v.findViewById(R.id.ex_pointer);
 
-        //Bind the service when the activity is created
+
 
         return v;
     }
@@ -129,8 +131,14 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     @Override
     public void onDestroy() {
         super.onDestroy();
-        board.tearDown();
-        getActivity().getApplicationContext().unbindService(this);
+        if(isBound == true){
+            board.tearDown();
+            getActivity().getApplicationContext().unbindService(this);
+        }
+
+
+
+
     }
 
 
@@ -298,4 +306,6 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
 
 
     }
+
+
 }

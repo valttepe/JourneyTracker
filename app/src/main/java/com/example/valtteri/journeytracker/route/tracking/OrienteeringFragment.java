@@ -347,7 +347,7 @@ public class OrienteeringFragment extends Fragment implements
                         locNow = new LatLng(medLat, medLon);
                         locPrev = new LatLng(prevLat, prevLon);
 
-                        if (stepsTaken || stepDetector != null) {
+                        if (stepsTaken || stepDetector == null) {
                             distanceThis = getDistance(locNow, locPrev);
                             //Todo distanceTotal contains the final meters
                             distanceTotal = distanceTotal + distanceThis;

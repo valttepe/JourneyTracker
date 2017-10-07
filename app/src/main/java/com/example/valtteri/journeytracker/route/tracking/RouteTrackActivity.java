@@ -2,10 +2,12 @@ package com.example.valtteri.journeytracker.route.tracking;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import com.example.valtteri.journeytracker.R;
 import com.google.android.gms.maps.model.LatLng;
@@ -16,6 +18,7 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
 
     FragmentTransaction ft;
     FragmentManager fm;
+    private Boolean exit = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +51,24 @@ public class RouteTrackActivity extends AppCompatActivity implements OnFragmentI
         ft.replace(R.id.route_content, newFrag);
         ft.addToBackStack(null);
         ft.commit();
+    }
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            finish(); // finish activity
+        } else {
+            Toast.makeText(this, "Press Back again to Exit.",
+                    Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
+
     }
 
 }

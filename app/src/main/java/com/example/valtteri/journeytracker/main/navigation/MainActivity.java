@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     int MY_PERMISSION_ACCESS_COURSE_LOCATION=00;
     int MY_PERMISSION_WRITE_EXTERNAL_STORAGE=00;
     MetaWearFragment metaWearFragment;
+    private Boolean exit = false;
 
 
 
@@ -222,44 +224,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @Override
-    public void onBackPressed() {
-        // show this alert when pushing androids own backbutton in the main three fragments
-        new AlertDialog.Builder(this)
-                .setTitle("Really Exit?")
-                .setMessage("Are you sure you want to exit?")
-                .setNegativeButton(android.R.string.no, null)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        MainActivity.super.onBackPressed();
-                    }
-                }).create().show();
-    }
-
     public void changeFragment(int itemid) {
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
@@ -296,5 +260,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         ft.addToBackStack(null);
         ft.commit();
     }
+
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            finish(); // finish activity
+        } else {
+            Toast.makeText(this, "Press Back again to Exit.",
+                    Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
+
+    }
+
 
 }

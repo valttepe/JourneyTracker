@@ -28,6 +28,7 @@ public class RouteFragment extends Fragment {
 
     boolean activityRunning;
     Button startbtn;
+    private Intent changetoTracking;
 
     public RouteFragment() {
         // Required empty public constructor
@@ -40,7 +41,9 @@ public class RouteFragment extends Fragment {
         startbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changetoTracking = new Intent(getActivity(), RouteTrackActivity.class);
+
+
+                changetoTracking = new Intent(getActivity(), RouteTrackActivity.class);
                 startActivity(changetoTracking);
             }
         });
@@ -59,4 +62,6 @@ public class RouteFragment extends Fragment {
         super.onPause();
         activityRunning = false;
     }
+
+
 }
