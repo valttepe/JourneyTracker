@@ -28,6 +28,7 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
     public String d, dis, time;
     public Cursor curi;
 
+    // Interface variable
     private OnFragmentInteractionListener mListener;
 
     public ResultFragment() {
