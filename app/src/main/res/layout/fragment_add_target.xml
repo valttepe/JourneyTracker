@@ -35,8 +35,9 @@
     <TextView
         android:id="@+id/textView2"
         style="@style/InfoTheme"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="40dp"
+        android:background="@color/colorPrimaryDark"
         android:gravity="center"
         android:text="@string/add_target_info"
         android:textSize="24sp"
@@ -49,6 +50,7 @@
     <Button
         android:id="@+id/ready_button"
         style="@style/ButtonTheme"
+        android:background="@drawable/button_bg_rounded_corners"
         android:layout_width="100dp"
         android:layout_height="48dp"
         android:gravity="center"
