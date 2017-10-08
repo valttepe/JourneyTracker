@@ -8,8 +8,8 @@
 
     <item
         android:id="@+id/navigation_map"
-        android:icon="@drawable/ic_map_black_24dp"
-        android:title="@string/title_map" />
+        android:icon="@drawable/ic_compass_rose_simple"
+        android:title="@string/title_compass" />
 
     <item
         android:id="@+id/navigation_saved_routes"

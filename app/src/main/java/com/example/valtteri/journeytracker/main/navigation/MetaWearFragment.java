@@ -1,5 +1,6 @@
 package com.example.valtteri.journeytracker.main.navigation;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.ComponentName;
@@ -13,7 +14,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,13 +37,12 @@ import bolts.Task;
 import static android.content.Context.SENSOR_SERVICE;
 
 
-/**
- * Created by Valtteri on 19.9.2017.
- */
+
 
 public class MetaWearFragment extends Fragment implements SensorEventListener, ServiceConnection {
 
-    MainActivity mainActivity;
+    // for the bluetooth enable request
+    private static final int REQUEST_ENABLE_BT = 1;
 
     //Internal sensor variables
     private ImageView mPointer;
@@ -58,12 +57,9 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     private float[] mOrientation = new float[3];
     private float mCurrentDegree = 0f;
 
-    // External sensor variables
-    private final String MW_MAC_ADDRESS = "CB:AA:89:01:48:20";
     private BtleService.LocalBinder serviceBinder;
     private MetaWearBoard board;
     private ImageView mPointerEx;
-
     private float[] exLastAccelerometer = new float[3];
     private float[] exLastMagnetometer = new float[3];
     private boolean exLastAccelerometerSet = false;
@@ -71,8 +67,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     private float[] exR = new float[9];
     private float[] exOrientation = new float[3];
     private float exCurrentDegree = 0f;
-    private float changeToMicros = 1000000;
-    private float changeToaccel = 9.81f;
+    private boolean isBound = false;
 
 
     public MetaWearFragment() {
@@ -82,7 +77,15 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().bindService(new Intent(getActivity(), BtleService.class),
+        // Adapter for checking if bluetooth is not on
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()) {
+            // creating dialogue that asks if you want to enable bluetooth or not
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+        //Bind the service when the activity is created
+        isBound = getActivity().getApplicationContext().bindService(new Intent(getActivity(), BtleService.class),
                 this, Context.BIND_AUTO_CREATE);
     }
 
@@ -90,16 +93,18 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_metawear, container, false);
+        // Sensormanager for the internal sensor
         mSensorManager = (SensorManager)getActivity().getSystemService(SENSOR_SERVICE);
+        // If phone has internal accelerometer and magnetic field sensors then it uses them
         if(mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null ||
                 mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
             mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            mPointer = (ImageView)v.findViewById(R.id.pointer);
+            mPointer = v.findViewById(R.id.pointer);
         }
-        mPointerEx = (ImageView)v.findViewById(R.id.ex_pointer);
+        mPointerEx = v.findViewById(R.id.ex_pointer);
 
-        //Bind the service when the activity is created
+
 
         return v;
     }
@@ -107,10 +112,14 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
 
     public void onStart() {
         super.onStart();
+        // Registers listeners for the sensors
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     public void onResume() {
         super.onResume();
+        // Registers listeners for the sensors
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
 
@@ -118,36 +127,54 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
 
     public void onStop() {
         super.onStop();
+        // unregisters listeners for the sensors
         mSensorManager.unregisterListener(this, mAccelerometer);
         mSensorManager.unregisterListener(this, mMagnetometer);
     }
     public void onPause(){
         super.onPause();
+        // unregisters listeners for the sensors
         mSensorManager.unregisterListener(this, mAccelerometer);
         mSensorManager.unregisterListener(this, mMagnetometer);
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        board.tearDown();
-        getActivity().getApplicationContext().unbindService(this);
+        // closes service and makes sure that board doesn't use battery when app is closed
+        if(isBound){
+            board.tearDown();
+            getActivity().getApplicationContext().unbindService(this);
+        }
+
+
+
+
     }
 
-
+    //Internal sensors pointer moving when getting data
     @Override
     public void onSensorChanged(SensorEvent event) {
+
         if (event.sensor == mAccelerometer) {
+            // Copies Accelerometer event values to the mLastAccelerometer array
             System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            // When accessing first time setting to true
             mLastAccelerometerSet = true;
         } else if (event.sensor == mMagnetometer) {
+            // Copies Magnetometer event values to the mLastMagnetometer array
             System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            // When accessing first time setting to true
             mLastMagnetometerSet = true;
         }
         if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            // Making matrix for the orientation with arrays of the acclerometer and magnetometer
+            // values
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
+            // getting direction in radians and changing it to degrees
             float azimuthInRadians = mOrientation[0];
             float azimuthInDegress = (float) (Math.toDegrees(azimuthInRadians) + 360) % 360;
+            // Making animation for the compass
             RotateAnimation ra = new RotateAnimation(
                     mCurrentDegree,
                     -azimuthInDegress,
@@ -158,7 +185,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
             ra.setDuration(250);
 
             ra.setFillAfter(true);
-
+            // Starting animation
             mPointer.startAnimation(ra);
             mCurrentDegree = -azimuthInDegress;
         }
@@ -168,28 +195,32 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
-
+    // When using external sensor
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
         // Typecast the binder to the service's LocalBinder class
         serviceBinder = (BtleService.LocalBinder) iBinder;
+        // board variable initialization
         retrieveBoard();
-        Log.i("oonks ees täällä ", "enpä tiedä");
+        // asynchronous connection to metawear board
         board.connectAsync().onSuccessTask(new Continuation<Void, Task<Route>>() {
             @Override
             public Task<Route> then(Task<Void> task) throws Exception {
+                // Creating route for the sensorfusion magnetometer
                 final SensorFusionBosch sensorFusion = board.getModule(SensorFusionBosch.class);
+                // configuring sensorfusion
                 sensorFusion.configure()
                         .mode(SensorFusionBosch.Mode.COMPASS)
                         .commit();
-                Log.i("hei mä oon täällä", "joo nii oot ");
+                // Returning route
                 return sensorFusion.correctedMagneticField().addRouteAsync(new RouteBuilder() {
                     @Override
                     public void configure(RouteComponent source) {
                         source.stream(new Subscriber() {
                             @Override
                             public void apply(Data data, Object... env) {
-                                Log.i("MAGNETICPER....", data.value(SensorFusionBosch.CorrectedMagneticField.class).toString());
+                                // the data that comes from the metawear is added to movepointer
+                                // function
                                 movePointer(data, null);
                             }
                         });
@@ -197,6 +228,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
                 }).continueWith(new Continuation<Route, Route>() {
                     @Override
                     public Route then(Task<Route> task) throws Exception {
+                        // Starting sensorfusion
                         sensorFusion.correctedMagneticField().start();
                         sensorFusion.start();
                         return null;
@@ -205,11 +237,13 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
             }
         });
 
-
+        // asynchronous connection to metawear board
         board.connectAsync().onSuccessTask(new Continuation<Void, Task<Route>>() {
             @Override
             public Task<Route> then(Task<Void> task) throws Exception {
+                // Creating route for the sensorfusion accelerometer
                 final SensorFusionBosch sensorFusionBosch = board.getModule(SensorFusionBosch.class);
+                // configuring sensorfusion
                 sensorFusionBosch.configure()
                         .mode(SensorFusionBosch.Mode.COMPASS)
                         .commit();
@@ -219,7 +253,8 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
                         source.stream(new Subscriber() {
                             @Override
                             public void apply(Data data, Object... env) {
-                                Log.i("Acceleratorperk....", data.value(SensorFusionBosch.CorrectedAcceleration.class).toString());
+                                // the data that comes from the metawear is added to movepointer
+                                // function
                                 movePointer(null, data);
                             }
                         });
@@ -227,6 +262,7 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
                 }).continueWith(new Continuation<Route, Route>() {
                     @Override
                     public Route then(Task<Route> task) throws Exception {
+                        // Starting sensorfusion
                         sensorFusionBosch.correctedAcceleration().start();
                         sensorFusionBosch.start();
                         return null;
@@ -242,41 +278,49 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
     }
 
     public void retrieveBoard() {
+        // Connecting to the metawear with bluetooth
         final BluetoothManager btManager=
                 (BluetoothManager) getActivity().getSystemService(Context.BLUETOOTH_SERVICE);
+        // Using hard coded mac address because we didn't have time to make scanner
+        String MW_MAC_ADDRESS = "CB:AA:89:01:48:20";
         final BluetoothDevice remoteDevice=
                 btManager.getAdapter().getRemoteDevice(MW_MAC_ADDRESS);
 
         // Create a MetaWear board object for the Bluetooth Device
         board= serviceBinder.getMetaWearBoard(remoteDevice);
     }
-
+    // Moving external compass
     public void movePointer(Data magnetic, Data accel) {
         if(magnetic != null && accel == null){
-            float test[] = new float[3];
-            test[0] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).x()*changeToMicros;
-            test[1] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).y()*changeToMicros;
-            test[2] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).z()*changeToMicros;
-            System.arraycopy(test, 0, exLastMagnetometer, 0, test.length);
+            // Creating float array for the incoming data
+            float magnetometer[] = new float[3];
+            // Changing Tesla to microTesla because values are too close to zero otherwise
+            float changeToMicros = 1000000;
+            magnetometer[0] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).x()* changeToMicros;
+            magnetometer[1] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).y()* changeToMicros;
+            magnetometer[2] = magnetic.value(SensorFusionBosch.CorrectedMagneticField.class).z()* changeToMicros;
+            // Copied magnetometer array to exLastMagnetometer array
+            System.arraycopy(magnetometer, 0, exLastMagnetometer, 0, magnetometer.length);
+            // First time setting to true
             exLastMagnetometerSet = true;
-
-            //Log.i("VITUNMAGNEETTI",magnetic.value(CorrectedMagneticField.class).toString());
         }
 
-
         else if(accel != null && magnetic == null){
-            //Log.i("PERKELEENKIIHTYVYYS", accel.value(CorrectedAcceleration.class).toString());
-            float test2[] = new float[3];
-            test2[0] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).x()*changeToaccel;
-            test2[1] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).y()*changeToaccel;
-            test2[2] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).z()*changeToaccel;
-            System.arraycopy(test2, 0, exLastAccelerometer, 0, test2.length);
-
+            // Creating float array for the incoming data
+            float accelerometer[] = new float[3];
+            // Changing g values to acceleration because that is needed
+            float changeToaccel = 9.81f;
+            accelerometer[0] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).x()* changeToaccel;
+            accelerometer[1] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).y()* changeToaccel;
+            accelerometer[2] = accel.value(SensorFusionBosch.CorrectedAcceleration.class).z()* changeToaccel;
+            // Copied accelerometer array to exLastAccelerometer array
+            System.arraycopy(accelerometer, 0, exLastAccelerometer, 0, accelerometer.length);
+            // First time setting to true
             exLastAccelerometerSet = true;
         }
 
         if (exLastAccelerometerSet && exLastMagnetometerSet) {
-            Log.i("tuleeks se tänne", "mahdollisesti");
+            // Same thing as in sensorchanged function to making compass move
             SensorManager.getRotationMatrix(exR, null, exLastAccelerometer, exLastMagnetometer);
             SensorManager.getOrientation(exR, exOrientation);
             float azimuthInRadians = exOrientation[0];
@@ -298,4 +342,6 @@ public class MetaWearFragment extends Fragment implements SensorEventListener, S
 
 
     }
+
+
 }

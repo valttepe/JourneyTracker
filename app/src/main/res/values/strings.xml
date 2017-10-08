@@ -2,14 +2,38 @@
     <string name="app_name">JourneyTracker</string>
     <!-- names for the navigation bar -->
     <string name="title_home">Home</string>
-    <string name="title_map">Map</string>
+    <string name="title_compass">Compass</string>
     <string name="title_saved_routes">Results</string>
 
     <!-- Button names -->
     <string name="start_button">Start</string>
     <string name="ready_button">Ready</string>
     <string name="stop_button">Stop</string>
+    <string name="start_practise">Start practice</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!--fragment_add_target -->
+    <string name="add_target_info">Press (hold) to add markers</string>
+
+    <!--fragment_metawear -->
+    <string name="metawear_compass">Metawear compass</string>
+    <string name="internal_compass">Internal compass</string>
+
+
+
+    <!--fragment_result_details -->
+    <string name="date">Date</string>
+    <string name="timer">Time</string>
+    <string name="distance">Distance</string>
+
+
+
+
+    <!-- -->
+
+
+
+
+    <!-- -->
+
+
 </resources>
