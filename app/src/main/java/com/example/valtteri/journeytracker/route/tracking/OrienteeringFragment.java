@@ -55,13 +55,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
 import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.main.navigation.MainActivity;
-
 import java.util.ArrayList;
-import java.util.Collections;
-
 
 public class OrienteeringFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
@@ -79,18 +75,14 @@ public class OrienteeringFragment extends Fragment implements
     LocationCallback mLocationCallback;
     private static final int REQUEST_CHECK_SETTINGS = 61124;
     private GoogleMap googleMap;
-    boolean mRequestingLocationUpdates;
     boolean isMapZoomOn = true;
     boolean centerButtonVisible = false;
+    boolean firstMinuteGone = false;
     LatLng myLocation;
     LatLng locNow;
     LatLng locPrev;
     double lat;
     double lon;
-    double latCombined = 0;
-    double lonCombined = 0;
-    double medLat;
-    double medLon;
     double prevLat = 0;
     double prevLon = 0;
     ArrayList<Double> medianValuesLat;
@@ -101,14 +93,12 @@ public class OrienteeringFragment extends Fragment implements
     boolean stepsTaken = false;
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
     int Seconds, Minutes, Hours;
-    int everyFifthValue = 0;
     TextView stopWatch;
     TextView metersTotal;
     Handler handler;
     String finalTime;
     SensorManager mSensorManager;
     Sensor stepDetector;
-    Circle myLoc;
     public static ArrayList<LatLng> markerPositions = new ArrayList<>();
     public static ArrayList<LatLng> locations;
 
@@ -119,22 +109,17 @@ public class OrienteeringFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Get locations of the markers which were set up in AddTargetFragment.
         if (getArguments() != null) {
             Log.i("Add target arguments", getArguments().getString("param1"));
             markerPositions = getArguments().getParcelableArrayList(AddTargetFragment.TARGETS);
-
-            for (LatLng locs : markerPositions) {
-                Log.d("RECEIVED LOCATIONS ", locs.toString());
-
-
-            }
-
         }
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //Initialize Google Map view.
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -155,13 +140,13 @@ public class OrienteeringFragment extends Fragment implements
         medianValuesLon = new ArrayList<Double>();
         stopbtn = v.findViewById(R.id.stop_button);
         center = v.findViewById(R.id.centerButton);
-        stopWatch = (TextView) v.findViewById(R.id.stopWatch);
-        metersTotal = (TextView) v.findViewById(R.id.metersTotal);
+        stopWatch = v.findViewById(R.id.stopWatch);
+        metersTotal = v.findViewById(R.id.metersTotal);
 
         handler = new Handler();
 
         //get the spinner from the xml.
-        Spinner dropdown = (Spinner) v.findViewById(R.id.spinner1);
+        Spinner dropdown = v.findViewById(R.id.spinner1);
         //create a list of items for the spinner.
         String[] items = new String[]{"Hybrid", "Roadmap", "Terrain", "Satellite"};
         /*
@@ -178,42 +163,39 @@ public class OrienteeringFragment extends Fragment implements
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
                 if (selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
+                    googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 } else if (selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+                    googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 
                 } else if (selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
+                    googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
                 } else if (selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                    googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
                 }
             }
 
+            //Set map type to Hybrid as default.
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
             }
         });
 
 
 
-
+        //Functionality when the stop button is clicked.
         stopbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO finalTime contains the final time of stop watch
-
+                // Get the value from stopwatch and pass it and meters to SQL.
                 finalTime = stopWatch.getText().toString();
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
-//                markerPositions.get(0);
-  //              locations.get(0);
-                // TODO: Coordinates
 
-                getActivity().getContentResolver().insert(SqlContentProvider.insertROUTE, values);
+                getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
                 //Stop timer
                 handler.removeCallbacks(runnable);
 
@@ -228,19 +210,17 @@ public class OrienteeringFragment extends Fragment implements
         StartTime = SystemClock.uptimeMillis();
         handler.postDelayed(runnable, 0);
 
-
+        //Create GoogleApiClient variable.
         gac = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
 
-
+        //Set up location settings.
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
-
         SettingsClient client = LocationServices.getSettingsClient(getActivity());
         Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
 
@@ -287,154 +267,96 @@ public class OrienteeringFragment extends Fragment implements
                 Log.d("Location result", locationResult.toString());
                 for (Location location : locationResult.getLocations()) {
 
+
+                    //Set current location to a method as a double.
                     lat = location.getLatitude();
                     lon = location.getLongitude();
                     setLoc(lat, lon);
 
-                    //Todo myLocation contains real time locations
+
+
+                    //Set current location to a LatLng type variable.
                     myLocation = new LatLng(getLat(), getLon());
 
+                    //Before starting to save locations we wait one minute to detect enough satellites
+                    //to make location accurate.
+                    if (firstMinuteGone == true){
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
+                    //Keeps map camera centered to the current location. If map is tapped once, you can explore
+                    // the map freely. Also a "center button" appears which allows you to center camera back
+                    //to the current location.
                     if (prevLat != 0 && isMapZoomOn == true) {
-
-                        Log.d("MENNÄÄKS", "TÄHÄN???");
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
                     } else if (isMapZoomOn == false) {
-                            center.setVisibility(View.VISIBLE);
-                            center.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
-                                    center.setVisibility(View.INVISIBLE);
-                                    isMapZoomOn = true;
-                                }
-                            });
+                        center.setVisibility(View.VISIBLE);
+                        center.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+                                center.setVisibility(View.INVISIBLE);
+                                isMapZoomOn = true;
+                            }
+                        });
                     }
-
-
-                    //Combine latitudes and longitudes.
-                  /*  if (prevLat != 0 && prevLon != 0) {
-                        latCombined = latCombined + lat;
-                        lonCombined = lonCombined + lon;
-
-                        Log.d("LATITUDE YHTEENSÄ", Double.toString(latCombined));
-                        Log.d("LONGITUDE YHTEENSÄ", Double.toString(lonCombined));
-                    }*/
-                    medianValuesLat.add(lat);
-                    medianValuesLon.add(lon);
-
-                    //Get the median location in every fifth callbacks to get more accurate meter calculation.
-                    if (everyFifthValue % 5 == 0 && everyFifthValue != 0) {
-
-                        medLat = medianLat(medianValuesLat);
-                        medLon = medianLon(medianValuesLon);
-                        Log.d("LATITUDE KESKIARVO", Double.toString(medLat));
-                        Log.d("LATITUDE KESKIARVO", Double.toString(medLon));
-
-                        locNow = new LatLng(medLat, medLon);
+                        //Set current location as LatLng to locNow variable and previous location as LatLng
+                        //to locPrev variable.
+                        locNow = new LatLng(getLat(), getLon());
                         locPrev = new LatLng(prevLat, prevLon);
 
-                        if (stepsTaken || stepDetector == null) {
-                            distanceThis = getDistance(locNow, locPrev);
-                            //Todo distanceTotal contains the final meters
-                            distanceTotal = distanceTotal + distanceThis;
-                            metersTotal.setText(Float.toString(distanceTotal) + "m");
-                            Log.d("VIELÄ EI KÄVELLÄ", "EIHÄN??");
-                        }
-
-
-                        medianValuesLat.clear();
-                        medianValuesLon.clear();
-                        everyFifthValue = 0;
+                        //If user's device contains Step detector sensor, app starts to calculate meters after
+                        //first step is taken. If device doesn't support the sensor, the meter calculation starts
+                        //without requiring a step first.
+                    if (stepsTaken || stepDetector == null) {
+                        distanceThis = getDistance(locNow, locPrev);
+                        distanceTotal = distanceTotal + distanceThis;
+                        metersTotal.setText(Float.toString(distanceTotal) + "m");
                     }
-
-                    if (medLat > 0 && medLon > 0) {
-                        Log.d("MENNÄÄKS TÄNNE?", "JOOOO");
-                        prevLat = medLat;
-                        prevLon = medLon;
-                    } else {
-                        Log.d("MENNÄÄKS TÄNNE HETKEKS?", "JOO");
+            }
                         prevLat = lat;
                         prevLon = lon;
                     }
-                    everyFifthValue = everyFifthValue + 1;
+
                 }
-                // googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-            }
-        };
-
-
+            };
         return v;
     }
 
     protected void createLocationRequest() {
         //LocationRequest
-        Log.d("location request", "Normally created");
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
-        mLocationRequest.setFastestInterval(3000);
+        mLocationRequest.setInterval(2000);
+        mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
-
+    //Sets location to variables.
     public void setLoc(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
     }
 
+    //Get current latitude as a double.
     public double getLat() {
         return lat;
     }
-
+    //Get current longitude as double.
     public double getLon() {
         return lon;
     }
 
-    public static double medianLat(ArrayList<Double> mLat) {
-        Collections.sort(mLat);
-        int middle = mLat.size()/2;
-
-        if (mLat.size()%2 == 1) {
-            return mLat.get(middle);
-        } else {
-            return (mLat.get(middle-1) + mLat.get(middle)) / 2.0;
-        }
-
-    }
-    public static double medianLon(ArrayList<Double> mLon) {
-        Collections.sort(mLon);
-        int middle = mLon.size()/2;
-
-        if (mLon.size()%2 == 1) {
-            return mLon.get(middle);
-        } else {
-            return (mLon.get(middle-1) + mLon.get(middle)) / 2.0;
-        }
-
-    }
-
-   /* public void getLocCircle() {
-        if (ifCircleIsGot == false) {
-            myLoc = googleMap.addCircle(new CircleOptions()
-                    .center(myLocation)
-                    .fillColor(Color.WHITE)
-                    .strokeColor(Color.MAGENTA)
-                    .visible(true)
-                    .radius(15));
-        }
-        ifCircleIsGot = true;
-    }*/
-
     public void onStart() {
+        //Connect to GoogleApiClient on start.
         gac.connect();
         super.onStart();
+        //Request location.
         createLocationRequest();
     }
 
     public void onResume() {
         super.onResume();
         startLocationUpdates();
+        //Create a toast to inform user if step counter is not supported.
         if (!stepCounter.register()) {
             Toast.makeText(getActivity(), "Step counter not supported!", Toast.LENGTH_SHORT).show();
         }
@@ -442,11 +364,13 @@ public class OrienteeringFragment extends Fragment implements
 
     public void onStop() {
         super.onStop();
+        //Disconnect Google Api Client, stop location updates and unregister step counter.
         gac.disconnect();
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         stepCounter.unregister();
     }
 
+    //Returns distance between two locations.
     public float getDistance(LatLng p1, LatLng p2) {
         double lat1 = (p1.latitude);
         double lng1 = (p1.longitude);
@@ -457,12 +381,13 @@ public class OrienteeringFragment extends Fragment implements
         return dist[0];
     }
 
+    //Start location updates.
     protected void startLocationUpdates() {
 
         try {
 
+            //Check permissions.
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
                 //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -474,7 +399,6 @@ public class OrienteeringFragment extends Fragment implements
             mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                     mLocationCallback,
                     null);
-            Log.d("loc update", "normally yes?");
         } catch (Exception e) {
             Log.d("loc update", "nope?" + e);
         }
@@ -497,10 +421,10 @@ public class OrienteeringFragment extends Fragment implements
         mListener = null;
     }
 
+    //Get location.
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -510,14 +434,11 @@ public class OrienteeringFragment extends Fragment implements
             return;
         }
         loc = LocationServices.FusedLocationApi.getLastLocation(gac);
-        Log.d("loc connected", "normally yes?" + loc);
-        if (loc != null) {
-           /* mLatitude.setText("Lat: " + loc.getLatitude());
-            mLongitude.setText("Lon: " + loc.getLongitude());*/
 
+        //If got a location, set it to variables lat and lon.
+        if (loc != null) {
             lat = loc.getLatitude();
             lon = loc.getLongitude();
-
         }
     }
 
@@ -529,13 +450,17 @@ public class OrienteeringFragment extends Fragment implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
     }
 
+    //Functionality when map is created.
     @Override
     public void onMapReady(GoogleMap map) {
-        LatLng suomi = new LatLng(60.11021, 24.7385007);
+        //The very first view on map before the camera centers to the current location.
+        LatLng finland = new LatLng(60.11021, 24.7385007);
+        //Initialize googleMap variable.
         googleMap = map;
-        googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+        //Set map type to Hybrid which is a mix of a satellite and a road map.
+        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        //Check location permissions.
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -544,15 +469,18 @@ public class OrienteeringFragment extends Fragment implements
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+        //Sets the blue icon to usage as a current location.
         googleMap.setMyLocationEnabled(true);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(suomi, 5));
+        //Moves camera to Finland view before placing it to the current location.
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(finland, 5));
 
-
+        //Adds those markers to map which were set in previous view.
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
         }
 
-
+        //If map is tapped once, auto centering of the camera turns off and a center button appears which
+        //allows user to center camera back to the current location.
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng position) {
@@ -562,14 +490,12 @@ public class OrienteeringFragment extends Fragment implements
 
             }
         });
-
     }
 
+    //Method for adding markers.
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
-                .position(position)
-                .title("Remove marker")
-                .draggable(true));
+                .position(position));
     }
 
     //If a step is taken, change value to true and start meter calculation.
@@ -597,6 +523,9 @@ public class OrienteeringFragment extends Fragment implements
                     + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
 
+            if(Minutes == 1){
+                firstMinuteGone = true;
+            }
             handler.postDelayed(this, 0);
         }
 
