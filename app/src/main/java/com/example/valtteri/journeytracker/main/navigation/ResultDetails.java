@@ -214,9 +214,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
-                .position(position)
-                .title("Remove marker")
-                .draggable(true));
+                .position(position));
 
     }
 
