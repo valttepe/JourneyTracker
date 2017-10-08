@@ -144,8 +144,8 @@ public class OrienteeringFragment extends Fragment implements
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         stepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         locations = new ArrayList<>();
-        medianValuesLat = new ArrayList<Double>();
-        medianValuesLon = new ArrayList<Double>();
+        medianValuesLat = new ArrayList<>();
+        medianValuesLon = new ArrayList<>();
         stopbtn = v.findViewById(R.id.stop_button);
         center = v.findViewById(R.id.centerButton);
         stopWatch = v.findViewById(R.id.stopWatch);
@@ -199,6 +199,7 @@ public class OrienteeringFragment extends Fragment implements
             public void onClick(View view) {
                 // Get the value from stopwatch and pass it and meters to SQL.
                 finalTime = stopWatch.getText().toString();
+                distanceTotal = Math.round(distanceTotal * (float)10.0 / (float) 10.0);
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
@@ -319,6 +320,7 @@ public class OrienteeringFragment extends Fragment implements
                     if (stepsTaken || stepDetector == null) {
                         distanceThis = getDistance(locNow, locPrev);
                         distanceTotal = distanceTotal + distanceThis;
+                        distanceTotal = Math.round(distanceTotal * (float)10.0 / (float) 10.0);
                         metersTotal.setText(Float.toString(distanceTotal) + "m");
                     }
             }
