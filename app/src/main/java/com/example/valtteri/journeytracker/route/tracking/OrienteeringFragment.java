@@ -195,7 +195,7 @@ public class OrienteeringFragment extends Fragment implements
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
 
-                getActivity().getContentResolver().insert(SqlContentProvider.inserROUTE, values);
+                getActivity().getContentResolver().insert(SqlContentProvider.insertROUTE, values);
                 //Stop timer
                 handler.removeCallbacks(runnable);
 
