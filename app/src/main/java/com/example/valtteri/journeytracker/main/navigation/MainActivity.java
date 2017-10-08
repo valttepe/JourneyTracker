@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
@@ -21,7 +20,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.valtteri.journeytracker.R;
@@ -34,16 +32,14 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback, OnFragmentInteractionListener{
 
-    private TextView mTextMessage;
     private Fragment fragment;
     private FragmentManager fm;
     private FragmentTransaction ft;
-    private static final String REQUESTING_LOCATION_UPDATES_KEY = "";
     final private int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 124;
-    int MY_PERMISSION_ACCESS_COURSE_LOCATION=00;
-    int MY_PERMISSION_WRITE_EXTERNAL_STORAGE=00;
-    MetaWearFragment metaWearFragment;
+    int MY_PERMISSION_ACCESS_COURSE_LOCATION=0;
+    int MY_PERMISSION_WRITE_EXTERNAL_STORAGE=0;
     private Boolean exit = false;
+    private Boolean backToList = false;
 
 
 
@@ -103,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             final LocationManager lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
             if (!lManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-                Toast.makeText(MainActivity.this, "Please turn your location on",
+                Toast.makeText(MainActivity.this, R.string.gps_location_toast,
                         Toast.LENGTH_LONG).show();
             }
 
@@ -125,10 +121,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
 
 
-                List<String> permissionsNeeded = new ArrayList<String>();
+                List<String> permissionsNeeded = new ArrayList<>();
 
 
-                final List<String> permissionsList = new ArrayList<String>();
+                final List<String> permissionsList = new ArrayList<>();
                 if (!addPermission(permissionsList, android.Manifest.permission.WRITE_EXTERNAL_STORAGE))
                     permissionsNeeded.add("Write External Storage");
                 if (!addPermission(permissionsList, android.Manifest.permission.ACCESS_COARSE_LOCATION))
@@ -195,12 +191,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     //@TargetApi(23)
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
         Log.d("Hojo Hojo", "käydääks tääl?");
         switch(requestCode) {
             case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS:
             {
-                Map<String, Integer> perms = new HashMap<String, Integer>();
+                Map<String, Integer> perms = new HashMap<>();
 
 
                 perms.put(android.Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
@@ -227,19 +223,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public void changeFragment(int itemid) {
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
-
+        // Change to home page fragment
         if(itemid == R.id.navigation_home) {
             fragment = new RouteFragment();
             ft.replace(R.id.content, fragment);
             ft.addToBackStack(null);
             ft.commit();
         }
+        // Change to metawear (Compass) fragment
         else if(itemid == R.id.navigation_map) {
             fragment = new MetaWearFragment();
             ft.replace(R.id.content, fragment);
             ft.addToBackStack(null);
             ft.commit();
         }
+        // Change to Route list fragment
         else if(itemid == R.id.navigation_saved_routes) {
             fragment = new ResultFragment();
             ft.replace(R.id.content, fragment);
@@ -251,30 +249,50 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     @Override
     public void changeFragment(Bundle bundle) {
+        // Change to details list
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
+        // Setting boolean true for onBackPressed function
+        backToList = true;
         
         fragment = new ResultDetails();
         fragment.setArguments(bundle);
         ft.replace(R.id.content, fragment);
         ft.addToBackStack(null);
         ft.commit();
+
     }
 
     @Override
     public void onBackPressed() {
+        // if pressed twice it closes activity
         if (exit) {
             finish(); // finish activity
         } else {
-            Toast.makeText(this, "Press Back again to Exit.",
-                    Toast.LENGTH_SHORT).show();
-            exit = true;
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    exit = false;
-                }
-            }, 3 * 1000);
+            // If user is using back button from details it returns to list view
+            // Couldn't get it work with popStack in here
+            if(backToList){
+                backToList = false;
+                fm = getSupportFragmentManager();
+                ft = fm.beginTransaction();
+                fragment = new ResultFragment();
+                ft.replace(R.id.content, fragment);
+                ft.addToBackStack(null);
+                ft.commit();
+            }
+            else {
+                // Shows toast if accidentally pressed back button and keeps exit boolean true
+                // for three seconds if user wants to press again to exit
+                Toast.makeText(this, R.string.exit_toast,
+                        Toast.LENGTH_SHORT).show();
+                exit = true;
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        exit = false;
+                    }
+                }, 3 * 1000);
+            }
 
         }
 

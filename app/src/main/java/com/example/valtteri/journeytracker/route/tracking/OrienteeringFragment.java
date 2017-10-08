@@ -210,7 +210,9 @@ public class OrienteeringFragment extends Fragment implements
 
                 //Change fragment to Main
                 Intent changetoMain = new Intent(getActivity(), MainActivity.class);
+                changetoMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(changetoMain);
+                getActivity().finish();
             }
         });
 
