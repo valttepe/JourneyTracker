@@ -6,5 +6,7 @@
     <color name="windowBackground">#FFFFFF</color>
     <color name="navBarColor">#8C0000</color>
     <color name="buttonColor">#CC0000</color>
-    <color name="colorAccent">#4bf442</color>
+    <color name="colorAccent">#191919</color>
+    <color name="startButton">#168716</color>
+    <color name="startButtonBorder">#127312</color>
 </resources>

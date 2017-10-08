@@ -31,6 +31,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+
 /**
  * Created by Otto on 2.10.2017.
  */
@@ -39,6 +44,10 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private OnFragmentInteractionListener mListener;
+    int normalMap = MAP_TYPE_NORMAL;
+    int terrainMap = MAP_TYPE_TERRAIN;
+    int satelliteMap = MAP_TYPE_SATELLITE;
+    int hybridMap = MAP_TYPE_HYBRID;
     GoogleMap googleMap;
     boolean ownLocLoadsRun = false;
     boolean markerLocLoadsRun = false;
@@ -58,8 +67,6 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     private Cursor markerCursor;
 
 
-
-
     public ResultDetails() {
 
     }
@@ -67,26 +74,20 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Get arguments from SQL.
         if(getArguments() != null) {
-            Log.i("Result arguments", getArguments().getString("distance"));
-            Log.i("Result arguments", getArguments().getString("date"));
-            Log.i("Result arguments", getArguments().getString("timer"));
-            Log.i("Result arguments", getArguments().getString("id"));
+
             distance = getArguments().getString("distance");
             date = getArguments().getString("date");
             timer = getArguments().getString("timer");
 
             selectionArgs[0] = getArguments().getString("id");
-
         }
         //Makes sure that Loader does its job correctly when accessing fragment second time.
         getActivity().getSupportLoaderManager().restartLoader(0, null, this);
 
-
         // Create cursor loader for the own coordinates
         getActivity().getSupportLoaderManager().initLoader(0, null, this);
-
-
     }
 
     @Override
@@ -102,8 +103,10 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         ownLocations = new ArrayList<>();
         markerLocations = new ArrayList<>();
 
+        //Set date of the exercise to view.
         dateTv.setText(date);
 
+        //Show meters as meters or as kilometers depending on the amount of meters.
         if (Double.valueOf(distance) >= 1000) {
             double dist = Double.valueOf(distance)/1000;
             distanceTv.setText(String.valueOf(dist) + " km");
@@ -112,17 +115,18 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
             double dist = Double.valueOf(distance);
             distanceTv.setText(dist + " m");
         }
+        //Set stopwatch value to view.
         timerTv.setText(timer);
 
         //get the spinner from the xml.
-        Spinner dropdown = (Spinner) v.findViewById(R.id.spinner3);
+        Spinner dropdown = v.findViewById(R.id.spinner3);
         //create a list of items for the spinner.
         String[] items = new String[]{"Hybrid", "Roadmap", "Terrain", "Satellite"};
         /*
         create an adapter to describe how the items are displayed, adapters are used in several places in android.
         There are multiple variations of this, but this is the basic variant.
         */
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -132,22 +136,22 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
                 if (selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
+                    googleMap.setMapType(normalMap);
                 } else if (selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+                    googleMap.setMapType(satelliteMap);
 
                 } else if (selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
+                    googleMap.setMapType(terrainMap);
 
                 } else if (selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                    googleMap.setMapType(hybridMap);
 
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                googleMap.setMapType(hybridMap);
             }
         });
 
@@ -280,19 +284,11 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
                 markerLocLoadsRun = true;
             }
 
-            if((ownLocLoadsRun == true && markerLocLoadsRun == true)) {
+            if((ownLocLoadsRun && markerLocLoadsRun)) {
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ownLocations.get(0), 16));
 
                 drawLine(ownLocations);
             }
-            /*else if(ownLocLoadsRun == true && markerLocLoadsRun == false ) {
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ownLocations.get(0), 16));
-
-                drawLine(ownLocations);
-            }*/
-
-
-
     }
 
     @Override

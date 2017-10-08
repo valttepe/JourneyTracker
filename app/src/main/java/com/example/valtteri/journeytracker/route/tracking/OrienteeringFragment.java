@@ -110,7 +110,6 @@ public class OrienteeringFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         //Get locations of the markers which were set up in AddTargetFragment.
         if (getArguments() != null) {
-            Log.i("Add target arguments", getArguments().getString("param1"));
             markerPositions = getArguments().getParcelableArrayList(AddTargetFragment.TARGETS);
         }
     }
@@ -279,16 +278,16 @@ public class OrienteeringFragment extends Fragment implements
 
                     //Before starting to save locations we wait one minute to detect enough satellites
                     //to make location accurate.
-                    if (firstMinuteGone == true){
+                    if (firstMinuteGone){
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
                     //Keeps map camera centered to the current location. If map is tapped once, you can explore
                     // the map freely. Also a "center button" appears which allows you to center camera back
                     //to the current location.
-                    if (prevLat != 0 && isMapZoomOn == true) {
+                    if (prevLat != 0 && isMapZoomOn) {
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
-                    } else if (isMapZoomOn == false) {
+                    } else if (!isMapZoomOn) {
                         center.setVisibility(View.VISIBLE);
                         center.setOnClickListener(new View.OnClickListener() {
                             @Override

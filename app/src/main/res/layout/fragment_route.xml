@@ -13,7 +13,7 @@
         android:layout_width="150dp"
         android:layout_height="100dp"
         android:layout_marginBottom="160dp"
-        android:background="@drawable/button_bg_rounded_corners"
+        android:background="@drawable/stopbutton_bg_rounded_corners"
         android:fontFamily="sans-serif"
         android:text="@string/start_practise"
         android:textSize="20sp"
