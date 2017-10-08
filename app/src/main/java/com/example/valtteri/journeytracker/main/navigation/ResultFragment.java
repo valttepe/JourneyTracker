@@ -150,7 +150,7 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
             time = cursor.getString(cursor.getColumnIndex("timer"));
             if(d != null || dis != null) {
                 date.setText(d);
-                distance.setText(dis);
+                distance.setText(dis + " m");
                 timer.setText(time);
             }
         }

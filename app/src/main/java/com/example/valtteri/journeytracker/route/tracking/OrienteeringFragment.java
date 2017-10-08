@@ -59,6 +59,11 @@ import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 import java.util.ArrayList;
 
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+
 public class OrienteeringFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -93,6 +98,10 @@ public class OrienteeringFragment extends Fragment implements
     boolean stepsTaken = false;
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
     int Seconds, Minutes, Hours;
+    int normalMap = MAP_TYPE_NORMAL;
+    int terrainMap = MAP_TYPE_TERRAIN;
+    int satelliteMap = MAP_TYPE_SATELLITE;
+    int hybridMap = MAP_TYPE_HYBRID;
     TextView stopWatch;
     TextView metersTotal;
     Handler handler;
@@ -135,8 +144,8 @@ public class OrienteeringFragment extends Fragment implements
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         stepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         locations = new ArrayList<>();
-        medianValuesLat = new ArrayList<Double>();
-        medianValuesLon = new ArrayList<Double>();
+        medianValuesLat = new ArrayList<>();
+        medianValuesLon = new ArrayList<>();
         stopbtn = v.findViewById(R.id.stop_button);
         center = v.findViewById(R.id.centerButton);
         stopWatch = v.findViewById(R.id.stopWatch);
@@ -162,15 +171,15 @@ public class OrienteeringFragment extends Fragment implements
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
                 if (selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    googleMap.setMapType(normalMap);
                 } else if (selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    googleMap.setMapType(satelliteMap);
 
                 } else if (selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                    googleMap.setMapType(terrainMap);
 
                 } else if (selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                    googleMap.setMapType(hybridMap);
 
                 }
             }
@@ -178,7 +187,7 @@ public class OrienteeringFragment extends Fragment implements
             //Set map type to Hybrid as default.
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                googleMap.setMapType(hybridMap);
             }
         });
 
@@ -190,6 +199,7 @@ public class OrienteeringFragment extends Fragment implements
             public void onClick(View view) {
                 // Get the value from stopwatch and pass it and meters to SQL.
                 finalTime = stopWatch.getText().toString();
+                distanceTotal = Math.round(distanceTotal * (float)10.0 / (float) 10.0);
                 ContentValues values = new ContentValues();
                 values.put("timer", finalTime);
                 values.put("distance", distanceTotal);
@@ -310,6 +320,7 @@ public class OrienteeringFragment extends Fragment implements
                     if (stepsTaken || stepDetector == null) {
                         distanceThis = getDistance(locNow, locPrev);
                         distanceTotal = distanceTotal + distanceThis;
+                        distanceTotal = Math.round(distanceTotal * (float)10.0 / (float) 10.0);
                         metersTotal.setText(Float.toString(distanceTotal) + "m");
                     }
             }
@@ -457,7 +468,7 @@ public class OrienteeringFragment extends Fragment implements
         //Initialize googleMap variable.
         googleMap = map;
         //Set map type to Hybrid which is a mix of a satellite and a road map.
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        googleMap.setMapType(hybridMap);
         //Check location permissions.
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //    ActivityCompat#requestPermissions

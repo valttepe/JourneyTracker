@@ -22,12 +22,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+
 public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
     Button readybtn;
     public static final String TARGETS = "targets";
     private GoogleMap googleMap;
     Bundle args;
+    int normalMap = MAP_TYPE_NORMAL;
+    int terrainMap = MAP_TYPE_TERRAIN;
+    int satelliteMap = MAP_TYPE_SATELLITE;
+    int hybridMap = MAP_TYPE_HYBRID;
 
     ArrayList<LatLng> markerPositions;
 
@@ -79,18 +88,18 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
                 if(selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_NORMAL);
+                    googleMap.setMapType(normalMap);
                 }
                 else if(selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_SATELLITE);
+                    googleMap.setMapType(satelliteMap);
 
                 }
                 else if(selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_TERRAIN);
+                    googleMap.setMapType(terrainMap);
 
                 }
                 else if(selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                    googleMap.setMapType(hybridMap);
 
                 }
             }
@@ -98,7 +107,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
             //Set map type to Hybrid as default.
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+                googleMap.setMapType(hybridMap);
             }
         });
         return v;
@@ -165,7 +174,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         //Initialize variable googleMap.
         googleMap = map;
         //Set map type to hybrid.
-        googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
+        googleMap.setMapType(hybridMap);
         //Set the first camera view to Finland.
         LatLng start = new LatLng(60.32453, 25.0516);
 

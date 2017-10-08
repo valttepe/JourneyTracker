@@ -109,10 +109,13 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         //Show meters as meters or as kilometers depending on the amount of meters.
         if (Double.valueOf(distance) >= 1000) {
             double dist = Double.valueOf(distance)/1000;
+
+            dist = Math.round(dist * 10.0) / 10.0;
             distanceTv.setText(String.valueOf(dist) + " km");
         }
         else{
             double dist = Double.valueOf(distance);
+            dist = Math.round(dist * 10.0) / 10.0;
             distanceTv.setText(dist + " m");
         }
         //Set stopwatch value to view.
@@ -198,7 +201,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        googleMap.setMapType(hybridMap);
 
     }
 
