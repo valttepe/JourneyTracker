@@ -16,7 +16,7 @@ import com.example.valtteri.journeytracker.route.tracking.RouteTrackActivity;
 
 public class RouteFragment extends Fragment {
 
-
+    //RouteFragment variables.
     boolean activityRunning;
     Button startbtn;
     private Intent changetoTracking;
@@ -32,13 +32,10 @@ public class RouteFragment extends Fragment {
         startbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 changetoTracking = new Intent(getActivity(), RouteTrackActivity.class);
                 startActivity(changetoTracking);
             }
         });
-
         return v;
     }
 
@@ -53,6 +50,4 @@ public class RouteFragment extends Fragment {
         super.onPause();
         activityRunning = false;
     }
-
-
 }

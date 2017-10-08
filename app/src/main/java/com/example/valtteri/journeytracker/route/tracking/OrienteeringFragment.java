@@ -49,7 +49,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -161,7 +160,7 @@ public class OrienteeringFragment extends Fragment implements
         create an adapter to describe how the items are displayed, adapters are used in several places in android.
         There are multiple variations of this, but this is the basic variant.
         */
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, items);
         //set the spinners adapter to the previously created one.
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -535,6 +534,8 @@ public class OrienteeringFragment extends Fragment implements
                     + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds));
 
+            //Notifies location callback to start tracking when one minute has gone. Idea is to skip
+            //bad locations in the beginning of tracking.
             if(Minutes == 1){
                 firstMinuteGone = true;
             }

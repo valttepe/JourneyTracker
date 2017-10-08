@@ -16,25 +16,25 @@ public class StepCheck implements SensorEventListener {
         void stepCountChanged(String sensoriChanged);
     }
 
+    //StepCheck variables.
     private StepCounterListener listener;
-
     private SensorManager mSensorManager;
     private Sensor countSensor;
     boolean valueChanged;
     boolean activityRunning;
-
     int stepCount = 0;
 
     //Get step detector sensor to usage. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public StepCheck(Context context){
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         countSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-
     }
+
     //Register sensor listener. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public boolean register(){
         return mSensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
     }
+
     //Unregister sensor listener. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public void unregister() {
         mSensorManager.unregisterListener(this);
@@ -58,16 +58,15 @@ public class StepCheck implements SensorEventListener {
             if (listener != null) {
                 listener.stepCountChanged(sensorEvent.toString());
             }
-
         }
     }
 
+    //Sets steps to stepCount variable.
     private void setSteps(int steps){
         this.stepCount = stepCount + steps;
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }

@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +42,7 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
 public class ResultDetails extends Fragment implements OnMapReadyCallback,
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    //ResultDetails variables.
     private OnFragmentInteractionListener mListener;
     int normalMap = MAP_TYPE_NORMAL;
     int terrainMap = MAP_TYPE_TERRAIN;
@@ -66,9 +66,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     private Cursor locationCursor;
     private Cursor markerCursor;
 
-
     public ResultDetails() {
-
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,6 +98,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         distanceTv = v.findViewById(R.id.kiloMeters);
         timerTv = v.findViewById(R.id.stopWatch);
 
+        //Initializes array lists for location points of user and markers.
         ownLocations = new ArrayList<>();
         markerLocations = new ArrayList<>();
 
@@ -140,6 +139,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
                 if (selectedItem.equals("Roadmap")) {
                     googleMap.setMapType(normalMap);
+
                 } else if (selectedItem.equals("Satellite")) {
                     googleMap.setMapType(satelliteMap);
 
@@ -157,19 +157,12 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
                 googleMap.setMapType(hybridMap);
             }
         });
-
-
-
-
-
         return v;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-
     }
 
     @Override
@@ -200,11 +193,12 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onMapReady(GoogleMap map) {
+        //Initializes Google Map variable and sets maptype to Hybrid.
         googleMap = map;
         googleMap.setMapType(hybridMap);
-
     }
 
+    //Method for drawing a red line between the location points of user.
     private void drawLine(ArrayList<LatLng> locations) {
         googleMap.addPolyline(new PolylineOptions().geodesic(true)
                     .color(Color.RED)
@@ -212,6 +206,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
             );
     }
 
+    //Method for adding the markers to map.
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
                 .position(position));
@@ -233,40 +228,33 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
             if( loader.getId() == 0 && data.getCount() != 0) {
                 locationCursor = data;
                 locationCursor.moveToFirst();
 
-                double test = locationCursor.getDouble(locationCursor.getColumnIndex("latitude"));
-
-                Log.i("LocationCursor", "" + test);
-
                 for(int i = 0; i < locationCursor.getCount(); i++){
 
                     locationCursor.moveToPosition(i);
-                    Log.d(locationCursor.getString(locationCursor.getColumnIndex("latitude")), locationCursor.getString(locationCursor.getColumnIndex("longitude")));
 
                     LatLng loc = new LatLng
                             (Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("latitude"))),
                                     Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("longitude"))));
                     ownLocations.add(loc);
-                    Log.d(locationCursor.getString(locationCursor.getColumnIndex("latitude")), locationCursor.getString(locationCursor.getColumnIndex("longitude")));
                 }
-
 
                 getActivity().getSupportLoaderManager().restartLoader(1, null, this);
                 // Create cursor loader for the marker coordinates
                 getActivity().getSupportLoaderManager().initLoader(1, null, this);
 
-
                 ownLocLoadsRun = true;
             }
             else if( loader.getId() == 1) {
+
                 if (data.getCount() != 0){
+
                     markerCursor = data;
                     markerCursor.moveToFirst();
-
-                    Log.i("MarkerCursor", "" + markerCursor.getString(markerCursor.getColumnIndex("_id")));
 
                     for(int i = 0; i < markerCursor.getCount(); i++){
 
@@ -275,11 +263,9 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
                                 (Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("latitude"))),
                                         Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("longitude"))));
                         markerLocations.add(loc);
-                        Log.d("TULLEET MARKERIT", markerCursor.getString(markerCursor.getColumnIndex("latitude")));
                     }
                     for(LatLng markerLocs : markerLocations) {
                         addTarget(markerLocs);
-
                     }
                 }
                 markerLocLoadsRun = true;
