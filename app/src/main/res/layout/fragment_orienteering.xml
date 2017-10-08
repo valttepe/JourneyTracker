@@ -5,94 +5,80 @@
     android:layout_height="match_parent"
     tools:context="com.example.valtteri.journeytracker.route.tracking.OrienteeringFragment">
 
-    <!-- TODO: Update blank fragment layout -->
 
 
-    <fragment
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="0dp"
-        android:layout_height="370dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
 
     <Spinner
         android:id="@+id/spinner1"
         android:layout_width="45dp"
         android:layout_height="30dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="50dp"
         android:background="@android:drawable/btn_dropdown"
         android:spinnerMode="dropdown"
-        app:layout_constraintRight_toRightOf="@+id/map"
-        app:layout_constraintTop_toTopOf="@+id/map" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
 
 
     <Button
         android:id="@+id/centerButton"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
-        android:text="Center"
-        app:layout_constraintBottom_toTopOf="@+id/metersTotal"
+        android:layout_width="88dp"
+        android:layout_height="48dp"
+        android:text="@string/center_button"
         android:visibility="invisible"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="@+id/map" />
-
-    <TextView
-        android:id="@+id/metersTotal"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:gravity="center"
-        android:text="0 m"
-        android:textColor="@android:color/black"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/map" />
-
-    <Button
-        android:id="@+id/stop_button"
-        style="@style/ButtonTheme"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/stop_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stopWatch"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_marginBottom="146dp" />
 
-    <TextView
-        android:id="@+id/stopWatch"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:gravity="center"
-        android:text="Time"
-        android:textColor="@android:color/black"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginRight="0dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/metersTotal" />
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="0dp">
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/stopWatch"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/metersTotal"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="@string/start_meters"
+            android:textColor="@android:color/black"
+            />
+
+        <Button
+            android:id="@+id/stop_button"
+            style="@style/ButtonTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/stop_button"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"/>
+
+
+    </LinearLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

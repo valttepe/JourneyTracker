@@ -3,13 +3,11 @@ package com.example.valtteri.journeytracker.main.navigation;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +18,6 @@ import com.example.valtteri.journeytracker.R;
 import com.example.valtteri.journeytracker.content.provider.SqlContentProvider;
 import com.example.valtteri.journeytracker.route.tracking.OnFragmentInteractionListener;
 
-/**
- * Created by Valtteri on 19.9.2017.
- */
 
 public class ResultFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -53,8 +48,9 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        View v = inflater.inflate(R.layout.fragment_result, container, false);
-        lv = (ListView)v.findViewById(android.R.id.list);
+        View v;
+        v = inflater.inflate(R.layout.fragment_result, container, false);
+        lv = v.findViewById(android.R.id.list);
 
         return v;
     }
@@ -62,7 +58,6 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
     public void onListItemClick(ListView l, View v, int position, long id) {
         if(mListener != null) {
             curi.moveToPosition(position);
-            Log.d("CLICK", curi.getString(curi.getColumnIndex("date")));
 
             args = new Bundle();
             args.putString("distance", curi.getString(curi.getColumnIndex("distance")));
@@ -110,12 +105,12 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
     }
 
 
-    public class SqlCursorAdapter extends CursorAdapter {
+    private class SqlCursorAdapter extends CursorAdapter {
         private LayoutInflater cursorInflater;
         private TextView date, timer, distance;
 
 
-        public SqlCursorAdapter(Context context, Cursor c, int flags) {
+        SqlCursorAdapter(Context context, Cursor c, int flags) {
             super(context, c, flags);
             cursorInflater = (LayoutInflater) context.getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
@@ -131,8 +126,8 @@ public class ResultFragment extends ListFragment implements LoaderManager.Loader
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             curi = cursor;
-            date = (TextView)view.findViewById(R.id.date);
-            distance = (TextView)view.findViewById(R.id.distance);
+            date = view.findViewById(R.id.date);
+            distance = view.findViewById(R.id.distance);
             timer = view.findViewById(R.id.timer);
             d = cursor.getString(cursor.getColumnIndex("date"));
             dis = cursor.getString(cursor.getColumnIndex("distance"));

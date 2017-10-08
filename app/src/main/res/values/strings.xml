@@ -10,6 +10,7 @@
     <string name="ready_button">Ready</string>
     <string name="stop_button">Stop</string>
     <string name="start_practise">Start practice</string>
+    <string name="center_button">Center</string>
 
     <!--fragment_add_target -->
     <string name="add_target_info">Press (hold) to add markers</string>
@@ -28,8 +29,8 @@
 
 
 
-    <!-- -->
-
+    <!--fragment_orienteering -->
+    <string name="start_meters">0 m</string>
 
 
 
