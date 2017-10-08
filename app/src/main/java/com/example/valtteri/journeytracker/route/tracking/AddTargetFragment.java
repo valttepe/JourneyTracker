@@ -1,28 +1,19 @@
 package com.example.valtteri.journeytracker.route.tracking;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-
 import com.example.valtteri.journeytracker.R;
-import com.example.valtteri.journeytracker.main.navigation.MainActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -30,28 +21,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 
 public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
     Button readybtn;
-    public static final String ARG_PARAM1 = "param1";
-    public static final String ARG_PARAM2 = "param2";
     public static final String TARGETS = "targets";
-
-    private String mParam1 = "testing";
-    private String mParam2 = "Testingtesting";
-    private MapView mapView;
     private GoogleMap googleMap;
     Bundle args;
 
     ArrayList<LatLng> markerPositions;
-
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private boolean mPermissionDenied = false;
 
     private OnFragmentInteractionListener mListener;
 
@@ -66,26 +44,22 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_add_target, container, false);
 
+        //Create an arraylist for markers.
         markerPositions = new ArrayList<>();
         readybtn = v.findViewById(R.id.ready_button);
+        //When ready button is clicked, marker locations are sent to Orienteering fragment and fragment is changed.
         readybtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: get target longitude and altitude here and send them forward to the Orienteering fragment
+
                 if(mListener != null){
                     args = new Bundle();
-                    args.putString(ARG_PARAM1, mParam1);
-                    args.putString(ARG_PARAM2, mParam2);
                     args.putParcelableArrayList(TARGETS, markerPositions);
 
-                    for(LatLng locs : markerPositions) {
-                        Log.d("Locations ", locs.toString());
-                    }
                     mListener.changeFragment(args);
                 }
             }
         });
-
 
         //get the spinner from the xml.
         Spinner dropdown = (Spinner)v.findViewById(R.id.spinner1);
@@ -121,16 +95,16 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
 
+            //Set map type to Hybrid as default.
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
             }
         });
-
-
         return v;
     }
 
+    //Method for adding markers to view and to array list.
     private void addTarget(LatLng position) {
         googleMap.addMarker(new MarkerOptions()
                 .position(position)
@@ -140,6 +114,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         markerPositions.add(position);
     }
 
+    //Remove marker from view and from array list.
     private void removeTarget(Marker m) {
         m.remove();
 
@@ -154,7 +129,6 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
 
     public void onResume() {
         super.onResume();
-
     }
 
 
@@ -162,11 +136,10 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //Set up Google Map view.
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
     @Override
@@ -186,25 +159,24 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
         mListener = null;
     }
 
-
+    //Functionality when Google Map view is created.
     @Override
     public void onMapReady(GoogleMap map) {
-
-
+        //Initialize variable googleMap.
         googleMap = map;
-
+        //Set map type to hybrid.
         googleMap.setMapType(googleMap.MAP_TYPE_HYBRID);
-
+        //Set the first camera view to Finland.
         LatLng start = new LatLng(60.32453, 25.0516);
 
+        //Add a marker by holding map.
         googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng position) {
                 addTarget(position);
-                Log.d("Added a marker: ", position.toString());
             }
         });
-
+        //Remove a marker by clicking the title "Remove" of a marker.
         googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker m){
@@ -212,7 +184,7 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-
+        // Camera movement.
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(start, 15));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
     }
