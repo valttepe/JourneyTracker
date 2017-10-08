@@ -8,11 +8,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
 public class StepCheck implements SensorEventListener {
 
     public interface StepCounterListener {
+        //Passes information to OrienteeringFragment if a step has been taken.
         void stepCountChanged(String sensoriChanged);
     }
 
@@ -25,52 +25,47 @@ public class StepCheck implements SensorEventListener {
 
     int stepCount = 0;
 
-
+    //Get step detector sensor to usage. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public StepCheck(Context context){
         mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         countSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
     }
+    //Register sensor listener. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public boolean register(){
-        Log.d("Internal sensor", "listener registered maybe?");
         return mSensorManager.registerListener(this, countSensor, SensorManager.SENSOR_DELAY_UI);
     }
-
+    //Unregister sensor listener. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public void unregister() {
         mSensorManager.unregisterListener(this);
     }
 
-
+    //Set sensor listener. THIS CAN'T BE PRIVATE BECAUSE IT'S CALLED FROM ORIENTEERING FRAGMENT!
     public void setListener(StepCounterListener listener) {
         this.listener = listener;
         activityRunning = true;
     }
 
 
+    //Method to pass information to OrienteeringFragment to tell if a step has been taken.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        Log.d("step counter", "do we ever come here? " + sensorEvent.values[0]);
+
         if (activityRunning) {
-            Log.d("AABLYAT", sensorEvent.toString());
             setSteps(1);
             valueChanged = true;
-            Log.d("Steps combined: ", Integer.toString(stepCount));
+
             if (listener != null) {
                 listener.stepCountChanged(sensorEvent.toString());
             }
 
         }
     }
-    public boolean getSensorState(){
-        return valueChanged;
-    }
+
     private void setSteps(int steps){
         this.stepCount = stepCount + steps;
     }
 
-    public int getSteps(){
-        return stepCount;
-    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
