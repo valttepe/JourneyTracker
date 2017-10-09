@@ -249,7 +249,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
             }
             else if( loader.getId() == 1 ) {
-                
+
                     if (data.getCount() != 0) {
 
                         data.moveToFirst();

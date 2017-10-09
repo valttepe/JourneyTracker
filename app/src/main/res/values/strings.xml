@@ -33,6 +33,7 @@
     <string name="start_meters">0 m</string>
     <string name="exit_toast">Press Back again to Exit.</string>
     <string name="gps_location_toast">Please turn your location on</string>
+    <string name="tracking_starts_in_a_minute">Location tracking starts in one minute...</string>
 
 
     <!-- -->

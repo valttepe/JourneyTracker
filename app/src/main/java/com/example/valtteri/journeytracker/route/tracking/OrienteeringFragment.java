@@ -468,6 +468,10 @@ public class OrienteeringFragment extends Fragment implements
     //Functionality when map is created.
     @Override
     public void onMapReady(GoogleMap map) {
+
+        //Tell the user that tracking takes one minute to start.
+        Toast.makeText(getActivity(), R.string.tracking_starts_in_a_minute,
+                Toast.LENGTH_LONG).show();
         //The very first view on map before the camera centers to the current location.
         LatLng finland = new LatLng(60.11021, 24.7385007);
         //Initialize googleMap variable.
