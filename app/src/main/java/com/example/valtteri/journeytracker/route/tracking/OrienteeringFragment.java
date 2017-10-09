@@ -298,6 +298,17 @@ public class OrienteeringFragment extends Fragment implements
                     //Add current location to arraylist.
                     locations.add(myLocation);
 
+                    //If map is tapped once, auto centering of the camera turns off and a center button appears which
+                    // allows user to center camera back to the current location.
+                    googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng position) {
+                            isMapZoomOn = false;
+                            centerButtonVisible = true;
+                            center.setVisibility(View.VISIBLE);
+                       }
+                   });
+
                     //Keeps map camera centered to the current location. If map is tapped once, you can explore
                     // the map freely. Also a "center button" appears which allows you to center camera back
                     //to the current location.
@@ -497,18 +508,6 @@ public class OrienteeringFragment extends Fragment implements
         for(LatLng locationPoint : markerPositions) {
             addTarget(locationPoint);
         }
-
-        //If map is tapped once, auto centering of the camera turns off and a center button appears which
-        //allows user to center camera back to the current location.
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng position) {
-                isMapZoomOn = false;
-                centerButtonVisible = true;
-                center.setVisibility(View.VISIBLE);
-
-            }
-        });
     }
 
     //Method for adding markers.
