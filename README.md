@@ -3,6 +3,8 @@ Android sensors course project
 
 JourneyTracker is your buddy when you go to hike, to walk or to do anything outside! First you can add targets (markers) in a map to ensure you remember to visit places you have planned to see during your exercise. Targets can also be dragged and removed. Then your route is being tracked with a real-time meter calculator and stopwatch. When your exercise is over you can inspect your route as a drawn path in a map and see the meters and minutes you used and also the targets you set earlier. The app also includes two compasses, one uses an internal sensor and another uses an external sensor (Metawear).
 
+Hidden features: You can drag a marker by holding and then moving it. Remove a marker by tapping it and pressing the title "Remove a marker". Tap the map so you can explore the view freely. Center button appears which allows you to center camera back to your current location. 
+
 ATTENTION! When an exercise is started, it takes one minute to start tracking. This is because we create a location request in the same view, so first locations are not accurate. If this app will be developed further, location request will be done when the app starts to make location accurate in that point when exercise should begin.
 
 
