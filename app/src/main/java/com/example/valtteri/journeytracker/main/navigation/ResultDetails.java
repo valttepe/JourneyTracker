@@ -35,15 +35,11 @@ import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
 
-/**
- * Created by Otto on 2.10.2017.
- */
-
 public class ResultDetails extends Fragment implements OnMapReadyCallback,
         LoaderManager.LoaderCallbacks<Cursor> {
 
     //ResultDetails variables.
-    private OnFragmentInteractionListener mListener;
+    protected OnFragmentInteractionListener mListener;
     int normalMap = MAP_TYPE_NORMAL;
     int terrainMap = MAP_TYPE_TERRAIN;
     int satelliteMap = MAP_TYPE_SATELLITE;
@@ -62,9 +58,6 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
 
     // ContentProvider variables
     String[] selectionArgs = new String[1];
-
-    private Cursor locationCursor;
-    private Cursor markerCursor;
 
     public ResultDetails() {
     }
@@ -115,7 +108,7 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
         else{
             double dist = Double.valueOf(distance);
             dist = Math.round(dist * 10.0) / 10.0;
-            distanceTv.setText(dist + " m");
+            distanceTv.setText(String.valueOf(dist) + " m");
         }
         //Set stopwatch value to view.
         timerTv.setText(timer);
@@ -137,18 +130,23 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                if (selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(normalMap);
+                switch (selectedItem) {
+                    case "Roadmap":
+                        googleMap.setMapType(normalMap);
 
-                } else if (selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(satelliteMap);
+                        break;
+                    case "Satellite":
+                        googleMap.setMapType(satelliteMap);
 
-                } else if (selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(terrainMap);
+                        break;
+                    case "Terrain":
+                        googleMap.setMapType(terrainMap);
 
-                } else if (selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(hybridMap);
+                        break;
+                    case "Hybrid":
+                        googleMap.setMapType(hybridMap);
 
+                        break;
                 }
             }
 
@@ -229,44 +227,45 @@ public class ResultDetails extends Fragment implements OnMapReadyCallback,
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-            if( loader.getId() == 0 && data.getCount() != 0) {
-                locationCursor = data;
-                locationCursor.moveToFirst();
+            if( loader.getId() == 0) {
+                if(data.getCount() != 0){
+                    data.moveToFirst();
 
-                for(int i = 0; i < locationCursor.getCount(); i++){
+                    for(int i = 0; i < data.getCount(); i++){
 
-                    locationCursor.moveToPosition(i);
+                        data.moveToPosition(i);
 
-                    LatLng loc = new LatLng
-                            (Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("latitude"))),
-                                    Double.valueOf(locationCursor.getString(locationCursor.getColumnIndex("longitude"))));
-                    ownLocations.add(loc);
+                        LatLng loc = new LatLng
+                                (Double.valueOf(data.getString(data.getColumnIndex("latitude"))),
+                                        Double.valueOf(data.getString(data.getColumnIndex("longitude"))));
+                        ownLocations.add(loc);
+                    }
+                    ownLocLoadsRun = true;
                 }
 
                 getActivity().getSupportLoaderManager().restartLoader(1, null, this);
                 // Create cursor loader for the marker coordinates
                 getActivity().getSupportLoaderManager().initLoader(1, null, this);
 
-                ownLocLoadsRun = true;
             }
-            else if( loader.getId() == 1) {
+            else if( loader.getId() == 1 ) {
+                
+                    if (data.getCount() != 0) {
 
-                if (data.getCount() != 0){
+                        data.moveToFirst();
 
-                    markerCursor = data;
-                    markerCursor.moveToFirst();
 
-                    for(int i = 0; i < markerCursor.getCount(); i++){
+                        for (int i = 0; i < data.getCount(); i++) {
 
-                        markerCursor.moveToPosition(i);
-                        LatLng loc = new LatLng
-                                (Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("latitude"))),
-                                        Double.valueOf(markerCursor.getString(markerCursor.getColumnIndex("longitude"))));
-                        markerLocations.add(loc);
-                    }
-                    for(LatLng markerLocs : markerLocations) {
-                        addTarget(markerLocs);
-                    }
+                            data.moveToPosition(i);
+                            LatLng loc = new LatLng
+                                    (Double.valueOf(data.getString(data.getColumnIndex("latitude"))),
+                                            Double.valueOf(data.getString(data.getColumnIndex("longitude"))));
+                            markerLocations.add(loc);
+                        }
+                        for (LatLng markerLocs : markerLocations) {
+                            addTarget(markerLocs);
+                        }
                 }
                 markerLocLoadsRun = true;
             }

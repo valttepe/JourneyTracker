@@ -69,9 +69,8 @@ public class OrienteeringFragment extends Fragment implements
         OnMapReadyCallback,
         StepCheck.StepCounterListener {
 
-    private Button stopbtn;
     private Button center;
-    private OnFragmentInteractionListener mListener;
+    protected OnFragmentInteractionListener mListener;
     GoogleApiClient gac;
     Location loc;
     FusedLocationProviderClient mFusedLocationClient;
@@ -145,7 +144,7 @@ public class OrienteeringFragment extends Fragment implements
         locations = new ArrayList<>();
         medianValuesLat = new ArrayList<>();
         medianValuesLon = new ArrayList<>();
-        stopbtn = v.findViewById(R.id.stop_button);
+        Button stopbtn = v.findViewById(R.id.stop_button);
         center = v.findViewById(R.id.centerButton);
         stopWatch = v.findViewById(R.id.stopWatch);
         metersTotal = v.findViewById(R.id.metersTotal);
@@ -169,17 +168,22 @@ public class OrienteeringFragment extends Fragment implements
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                if (selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(normalMap);
-                } else if (selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(satelliteMap);
+                switch (selectedItem) {
+                    case "Roadmap":
+                        googleMap.setMapType(normalMap);
+                        break;
+                    case "Satellite":
+                        googleMap.setMapType(satelliteMap);
 
-                } else if (selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(terrainMap);
+                        break;
+                    case "Terrain":
+                        googleMap.setMapType(terrainMap);
 
-                } else if (selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(hybridMap);
+                        break;
+                    case "Hybrid":
+                        googleMap.setMapType(hybridMap);
 
+                        break;
                 }
             }
 

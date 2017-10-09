@@ -87,20 +87,22 @@ public class AddTargetFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedItem = adapterView.getItemAtPosition(i).toString();
-                if(selectedItem.equals("Roadmap")) {
-                    googleMap.setMapType(normalMap);
-                }
-                else if(selectedItem.equals("Satellite")) {
-                    googleMap.setMapType(satelliteMap);
+                switch (selectedItem) {
+                    case "Roadmap":
+                        googleMap.setMapType(normalMap);
+                        break;
+                    case "Satellite":
+                        googleMap.setMapType(satelliteMap);
 
-                }
-                else if(selectedItem.equals("Terrain")) {
-                    googleMap.setMapType(terrainMap);
+                        break;
+                    case "Terrain":
+                        googleMap.setMapType(terrainMap);
 
-                }
-                else if(selectedItem.equals("Hybrid")) {
-                    googleMap.setMapType(hybridMap);
+                        break;
+                    case "Hybrid":
+                        googleMap.setMapType(hybridMap);
 
+                        break;
                 }
             }
 

@@ -18,7 +18,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -114,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             MY_PERMISSION_ACCESS_COURSE_LOCATION);
                     ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             MY_PERMISSION_WRITE_EXTERNAL_STORAGE);
-                }else{
                 }
 
             }else {
@@ -176,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     //Handles permission results. Checks if permissions are applied or denied.
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         switch(requestCode) {
             case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS:
@@ -191,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                 if (perms.get(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-
+                    break;
                 } else {
                     Toast.makeText(this, "Some Permission is Denied",
                             Toast.LENGTH_SHORT).show();
