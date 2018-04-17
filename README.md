@@ -16,6 +16,9 @@ ATTENTION! When an exercise is started, it takes one minute to start tracking. T
 ## Testing report
 - [https://docs.google.com/document/d/1bj5q7X9Fx7YF_oet4s_mtoXkWpb7gxQ-kJyQnlPZR48/edit?usp=sharing](https://docs.google.com/document/d/1bj5q7X9Fx7YF_oet4s_mtoXkWpb7gxQ-kJyQnlPZR48/edit?usp=sharing)
 
+## UI Documentation
+- [https://drive.google.com/open?id=1CrizKgJuNukQJN_pgZfcedjr64Gchd0K](https://drive.google.com/open?id=1CrizKgJuNukQJN_pgZfcedjr64Gchd0K)
+
 ## Optional
 - MbientLab MetaMotionC external sensor.
 
